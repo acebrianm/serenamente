@@ -5,28 +5,32 @@ A modern, responsive Single Page Application (SPA) built with React and Material
 ## ✨ Features
 
 - **Responsive Design**: Optimized for all devices and screen sizes
-- **Bilingual Support**: Spanish and English language options
+- **Spanish Language**: Full Spanish language interface for Latin American audience
 - **Smooth Scrolling**: Seamless navigation between sections
 - **Modern UI**: Clean, professional design with Material-UI components
 - **Interactive Elements**: Hover effects, animations, and transitions
 - **Contact Integration**: WhatsApp and email integration for easy communication
+- **Comprehensive Testing**: Full Jest unit test coverage for all components
 
 ## 🗂 Project Structure
 
 ```
 /src
   /components
-    Navbar.tsx          # Navigation with language toggle
+    Navbar.tsx          # Navigation bar (Spanish)
     Hero.tsx            # Hero section with CTA
     About.tsx           # Conference information
     Mission.tsx         # Mission and values
     Tickets.tsx         # Pricing and ticket options
     Contact.tsx         # Contact form and information
     Footer.tsx          # Footer with social links
+    *.test.tsx          # Jest unit tests for each component
   /theme
     theme.ts            # MUI theme configuration
   App.tsx               # Main application component
+  App.test.tsx          # Main app unit tests
   index.tsx             # Application entry point
+  setupTests.ts         # Jest configuration
 ```
 
 ## 🛠 Technologies Used
@@ -36,6 +40,7 @@ A modern, responsive Single Page Application (SPA) built with React and Material
 - **@emotion/react** & **@emotion/styled** - CSS-in-JS styling
 - **react-scroll** - Smooth scrolling navigation
 - **TypeScript** - Type safety and better development experience
+- **Jest** & **@testing-library/react** - Unit testing framework and utilities
 
 ## 🚀 Getting Started
 
@@ -69,7 +74,8 @@ A modern, responsive Single Page Application (SPA) built with React and Material
 
 - `pnpm start` - Runs the development server
 - `pnpm build` - Creates production build
-- `pnpm test` - Runs test suite
+- `pnpm test` - Runs Jest test suite (64 unit tests)
+- `pnpm test -- --coverage` - Runs tests with coverage report
 - `pnpm eject` - Ejects from Create React App (not recommended)
 
 ## 📱 Sections Overview
@@ -108,15 +114,40 @@ A modern, responsive Single Page Application (SPA) built with React and Material
 - Legal links and copyright information
 - Contact information
 
-## 🌐 Language Support
+## 🧪 Testing
 
-The website supports both Spanish (default) and English. Users can switch languages using the language toggle in the navigation bar. All content is dynamically translated including:
+The project includes comprehensive Jest unit testing with **64 test cases** covering:
 
-- Navigation menu items
-- Section headings and content
-- Button labels
-- Form placeholders
-- Contact information
+- **Component Rendering**: All components render correctly
+- **User Interactions**: Form submissions, button clicks, navigation
+- **Content Validation**: Text content, images, and links
+- **Responsive Behavior**: Mobile and desktop layouts
+- **Integration Testing**: Component interactions and data flow
+
+### Running Tests
+
+```bash
+# Run all tests
+pnpm test
+
+# Run tests with coverage report
+pnpm test -- --coverage
+
+# Run tests in watch mode
+pnpm test -- --watch
+```
+
+### Test Structure
+
+Each component has its own test file following the pattern `ComponentName.test.tsx`:
+- `App.test.tsx` - Main application tests
+- `Navbar.test.tsx` - Navigation tests  
+- `Hero.test.tsx` - Hero section tests
+- `About.test.tsx` - About section tests
+- `Mission.test.tsx` - Mission section tests
+- `Tickets.test.tsx` - Tickets section tests
+- `Contact.test.tsx` - Contact form tests
+- `Footer.test.tsx` - Footer tests
 
 ## 🎨 Design Features
 
@@ -156,12 +187,27 @@ To deploy the application:
 Edit `src/theme/theme.ts` to customize colors, typography, and other design tokens.
 
 ### Content Updates
-Update the content objects in each component to modify text, pricing, contact information, etc.
+Update the Spanish content directly in each component to modify text, pricing, contact information, etc.
 
 ### Adding New Sections
 1. Create a new component in the `components` folder
-2. Import and add it to `App.tsx`
-3. Add navigation link in `Navbar.tsx`
+2. Create corresponding unit tests (`ComponentName.test.tsx`)
+3. Import and add the component to `App.tsx`
+4. Add navigation link in `Navbar.tsx`
+5. Update tests to include the new section
+
+## 📊 Recent Updates
+
+### v2.0 (Latest)
+- ❌ **Removed**: Bilingual support (English/Spanish toggle)
+- ✅ **Added**: Comprehensive Jest unit testing (64 test cases)  
+- ✅ **Improved**: Simplified Spanish-only interface
+- ✅ **Enhanced**: Better code maintainability and testing coverage
+
+### Breaking Changes
+- Language toggle functionality has been removed
+- All components now display Spanish content only
+- Language-related props and interfaces have been eliminated
 
 ## 🐛 Known Issues
 
