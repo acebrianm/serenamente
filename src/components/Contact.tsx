@@ -8,11 +8,13 @@ import {
   Button,
   TextField,
   IconButton,
-  Grid
+  Grid,
+  useTheme
 } from '@mui/material';
-import { WhatsApp, Email, Send, Phone, LocationOn } from '@mui/icons-material';
+import { WhatsApp, Email, Send } from '@mui/icons-material';
 
 const Contact: React.FC = () => {
+  const theme = useTheme();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -53,29 +55,15 @@ const Contact: React.FC = () => {
       title: 'WhatsApp',
       value: contactInfo.whatsapp,
       action: handleWhatsApp,
-      color: '#25D366'
+      color: theme.palette.custom.social.whatsapp
     },
     {
       icon: Email,
       title: 'Email',
       value: contactInfo.email,
       action: () => window.open(`mailto:${contactInfo.email}?subject=${emailSubject}`),
-      color: '#ea4335'
+      color: theme.palette.custom.social.gmail
     },
-    {
-      icon: Phone,
-      title: 'Teléfono',
-      value: contactInfo.phone,
-      action: () => window.open(`tel:${contactInfo.phone}`),
-      color: '#0066ff'
-    },
-    {
-      icon: LocationOn,
-      title: 'Ubicación',
-      value: contactInfo.location,
-      action: () => {},
-      color: '#ff4081'
-    }
   ];
 
   return (
@@ -94,9 +82,9 @@ const Contact: React.FC = () => {
           sx={{
             textAlign: 'center',
             mb: 2,
-            fontWeight: 'bold',
+            fontWeight: theme.custom.fontWeight.bold,
             color: 'primary.main',
-            fontSize: { xs: '2.5rem', md: '3.5rem' }
+            fontSize: { xs: theme.custom.fontSize.section.xs, md: theme.custom.fontSize.section.md }
           }}
         >
           Contacto
@@ -108,7 +96,7 @@ const Contact: React.FC = () => {
             textAlign: 'center',
             mb: 6,
             color: 'text.secondary',
-            fontWeight: 300
+            fontWeight: theme.custom.fontWeight.light
           }}
         >
           ¿Tienes preguntas? Estamos aquí para ayudarte
@@ -123,7 +111,7 @@ const Contact: React.FC = () => {
               Envíanos un mensaje
             </Typography>
 
-            <Card sx={{ p: 3, borderRadius: 3, boxShadow: '0 8px 25px rgba(0,0,0,0.1)' }}>
+            <Card sx={{ p: 3, borderRadius: theme.custom.borderRadius.medium, boxShadow: theme.palette.custom.shadow.medium }}>
               <form onSubmit={handleSubmit}>
                 <TextField
                   fullWidth
@@ -166,9 +154,9 @@ const Contact: React.FC = () => {
                   startIcon={<Send />}
                   sx={{
                     py: 2,
-                    backgroundColor: '#ff4081',
+                    backgroundColor: theme.palette.secondary.main,
                     '&:hover': {
-                      backgroundColor: '#e91e63',
+                      backgroundColor: theme.palette.secondary.dark,
                     }
                   }}
                 >
@@ -186,12 +174,12 @@ const Contact: React.FC = () => {
                     sx={{
                       p: 3,
                       textAlign: 'center',
-                      borderRadius: 3,
+                      borderRadius: theme.custom.borderRadius.medium,
                       cursor: method.action !== (() => {}) ? 'pointer' : 'default',
                       transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                       '&:hover': {
                         transform: method.action !== (() => {}) ? 'translateY(-5px)' : 'none',
-                        boxShadow: '0 12px 25px rgba(0,0,0,0.15)'
+                        boxShadow: theme.palette.custom.shadow.heavy
                       },
                       border: `2px solid ${method.color}20`
                     }}
@@ -236,7 +224,7 @@ const Contact: React.FC = () => {
                 mt: 4,
                 p: 3,
                 backgroundColor: 'primary.main',
-                borderRadius: 3,
+                borderRadius: theme.custom.borderRadius.medium,
                 color: 'white',
                 textAlign: 'center'
               }}
@@ -251,7 +239,7 @@ const Contact: React.FC = () => {
                 startIcon={<WhatsApp />}
                 onClick={handleWhatsApp}
                 sx={{
-                  backgroundColor: '#25D366',
+                  backgroundColor: theme.palette.custom.social.whatsapp,
                   '&:hover': {
                     backgroundColor: '#20b954',
                   },

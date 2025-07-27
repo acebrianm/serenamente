@@ -1,8 +1,10 @@
 import React from 'react';
-import { Box, Typography, Container, IconButton, Divider, Grid } from '@mui/material';
+import { Box, Typography, Container, IconButton, Divider, Grid, useTheme } from '@mui/material';
 import { Instagram, X, LinkedIn, Facebook, Email, Phone } from '@mui/icons-material';
 
 const Footer: React.FC = () => {
+  const theme = useTheme();
+  
   const links = [
     { label: 'Inicio', href: '#hero' },
     { label: 'Acerca de', href: '#about' },
@@ -18,17 +20,17 @@ const Footer: React.FC = () => {
   ];
 
   const socialLinks = [
-    { icon: Instagram, href: 'https://instagram.com/serenamente', color: '#E4405F' },
-    { icon: X, href: 'https://x.com/serenamente', color: '#000000' },
-    { icon: LinkedIn, href: 'https://linkedin.com/company/serenamente', color: '#0077B5' },
-    { icon: Facebook, href: 'https://facebook.com/serenamente', color: '#1877F2' }
+    { icon: Instagram, href: 'https://instagram.com/serenamente', color: theme.palette.custom.social.instagram },
+    { icon: X, href: 'https://x.com/serenamente', color: theme.palette.custom.social.x },
+    { icon: LinkedIn, href: 'https://linkedin.com/company/serenamente', color: theme.palette.custom.social.linkedin },
+    { icon: Facebook, href: 'https://facebook.com/serenamente', color: theme.palette.custom.social.facebook }
   ];
 
   return (
     <Box
       component="footer"
       sx={{
-        backgroundColor: '#1a1a1a',
+        backgroundColor: theme.palette.custom.footer.background,
         color: 'white',
         pt: 6,
         pb: 3
@@ -40,7 +42,7 @@ const Footer: React.FC = () => {
             <Typography
               variant="h4"
               component="h3"
-              sx={{ mb: 2, fontWeight: 'bold', color: '#ff4081' }}
+              sx={{ mb: 2, fontWeight: theme.custom.fontWeight.bold, color: theme.palette.secondary.main }}
             >
               Serenamente
             </Typography>
@@ -59,7 +61,7 @@ const Footer: React.FC = () => {
                   rel="noopener noreferrer"
                   sx={{
                     color: 'white',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    backgroundColor: theme.palette.custom.overlay.light,
                     '&:hover': {
                       backgroundColor: social.color,
                       transform: 'translateY(-2px)',
@@ -77,7 +79,7 @@ const Footer: React.FC = () => {
             <Typography
               variant="h6"
               component="h4"
-              sx={{ mb: 2, fontWeight: 'bold' }}
+              sx={{ mb: 2, fontWeight: theme.custom.fontWeight.bold }}
             >
               Enlaces Rápidos
             </Typography>
@@ -88,10 +90,10 @@ const Footer: React.FC = () => {
                   component="a"
                   href={link.href}
                   sx={{
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: theme.palette.custom.overlay.dark,
                     textDecoration: 'none',
                     '&:hover': {
-                      color: '#ff4081',
+                      color: theme.palette.secondary.main,
                       textDecoration: 'underline',
                     },
                     transition: 'color 0.3s ease'
@@ -107,34 +109,34 @@ const Footer: React.FC = () => {
             <Typography
               variant="h6"
               component="h4"
-              sx={{ mb: 2, fontWeight: 'bold' }}
+              sx={{ mb: 2, fontWeight: theme.custom.fontWeight.bold }}
             >
               Contacto
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Email sx={{ color: '#ff4081', fontSize: 20 }} />
+                <Email sx={{ color: theme.palette.secondary.main, fontSize: 20 }} />
                 <Typography
                   component="a"
                   href="mailto:info@serenamente.com"
                   sx={{
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: theme.palette.custom.overlay.dark,
                     textDecoration: 'none',
-                    '&:hover': { color: '#ff4081' }
+                    '&:hover': { color: theme.palette.secondary.main }
                   }}
                 >
                   info@serenamente.com
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Phone sx={{ color: '#ff4081', fontSize: 20 }} />
+                <Phone sx={{ color: theme.palette.secondary.main, fontSize: 20 }} />
                 <Typography
                   component="a"
                   href="tel:+1234567890"
                   sx={{
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: theme.palette.custom.overlay.dark,
                     textDecoration: 'none',
-                    '&:hover': { color: '#ff4081' }
+                    '&:hover': { color: theme.palette.secondary.main }
                   }}
                 >
                   +1 234 567 890
@@ -147,7 +149,7 @@ const Footer: React.FC = () => {
             <Typography
               variant="h6"
               component="h4"
-              sx={{ mb: 2, fontWeight: 'bold' }}
+              sx={{ mb: 2, fontWeight: theme.custom.fontWeight.bold }}
             >
               Legal
             </Typography>
@@ -158,11 +160,11 @@ const Footer: React.FC = () => {
                   component="a"
                   href={link.href}
                   sx={{
-                    color: 'rgba(255, 255, 255, 0.7)',
+                    color: theme.palette.custom.overlay.dark,
                     textDecoration: 'none',
                     fontSize: '0.9rem',
                     '&:hover': {
-                      color: '#ff4081',
+                      color: theme.palette.secondary.main,
                       textDecoration: 'underline',
                     },
                     transition: 'color 0.3s ease'
@@ -175,7 +177,7 @@ const Footer: React.FC = () => {
           </Grid>
         </Grid>
 
-        <Divider sx={{ my: 4, backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
+        <Divider sx={{ my: 4, backgroundColor: theme.palette.custom.footer.divider }} />
 
         <Box
           sx={{
@@ -188,13 +190,13 @@ const Footer: React.FC = () => {
         >
           <Typography
             variant="body2"
-            sx={{ color: 'rgba(255, 255, 255, 0.6)' }}
+            sx={{ color: theme.palette.custom.overlay.medium }}
           >
             © 2024 Serenamente. Todos los derechos reservados.
           </Typography>
           <Typography
             variant="body2"
-            sx={{ color: 'rgba(255, 255, 255, 0.6)' }}
+            sx={{ color: theme.palette.custom.overlay.medium }}
           >
             Hecho con ❤️ para transformar vidas
           </Typography>

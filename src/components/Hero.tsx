@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Typography, Button, Container } from '@mui/material';
+import { Box, Typography, Button, Container, useTheme } from '@mui/material';
 import { Link } from 'react-scroll';
 
 const Hero: React.FC = () => {
+  const theme = useTheme();
 
   return (
     <Box
@@ -11,7 +12,7 @@ const Hero: React.FC = () => {
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: theme.palette.custom.hero.gradient,
         color: 'white',
         position: 'relative',
         '&::before': {
@@ -21,7 +22,7 @@ const Hero: React.FC = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          backgroundColor: theme.palette.custom.hero.overlay,
         }
       }}
     >
@@ -30,8 +31,8 @@ const Hero: React.FC = () => {
           variant="h1"
           component="h1"
           sx={{
-            fontSize: { xs: '3rem', md: '4.5rem', lg: '5.5rem' },
-            fontWeight: 'bold',
+            fontSize: { xs: theme.custom.fontSize.hero.xs, md: theme.custom.fontSize.hero.md, lg: theme.custom.fontSize.hero.lg },
+            fontWeight: theme.custom.fontWeight.bold,
             mb: 2,
             textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
             animation: 'fadeInUp 1s ease-out'
@@ -44,9 +45,9 @@ const Hero: React.FC = () => {
           variant="h4"
           component="h2"
           sx={{
-            fontSize: { xs: '1.2rem', md: '1.8rem', lg: '2rem' },
+            fontSize: { xs: theme.custom.fontSize.subtitle.xs, md: theme.custom.fontSize.subtitle.md, lg: theme.custom.fontSize.subtitle.lg },
             mb: 3,
-            fontWeight: 300,
+            fontWeight: theme.custom.fontWeight.light,
             textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
             animation: 'fadeInUp 1s ease-out 0.2s both'
           }}
@@ -75,16 +76,16 @@ const Hero: React.FC = () => {
               sx={{
                 px: 4,
                 py: 2,
-                fontSize: '1.2rem',
-                borderRadius: '50px',
-                backgroundColor: '#ff4081',
+                fontSize: theme.custom.fontSize.subtitle.xs,
+                borderRadius: theme.custom.borderRadius.round,
+                backgroundColor: theme.palette.secondary.main,
                 '&:hover': {
-                  backgroundColor: '#e91e63',
+                  backgroundColor: theme.palette.secondary.dark,
                   transform: 'scale(1.05)',
                 },
                 transition: 'all 0.3s ease',
                 animation: 'fadeInUp 1s ease-out 0.6s both',
-                boxShadow: '0 8px 25px rgba(255, 64, 129, 0.3)'
+                boxShadow: theme.palette.custom.shadow.colored
               }}
             >
               Comprar Entradas
@@ -98,12 +99,12 @@ const Hero: React.FC = () => {
               sx={{
                 px: 4,
                 py: 2,
-                fontSize: '1.2rem',
-                borderRadius: '50px',
+                fontSize: theme.custom.fontSize.subtitle.xs,
+                borderRadius: theme.custom.borderRadius.round,
                 borderColor: 'white',
                 color: 'white',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  backgroundColor: theme.palette.custom.overlay.light,
                   borderColor: 'white',
                   transform: 'scale(1.05)',
                 },

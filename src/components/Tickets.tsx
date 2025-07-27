@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Typography, Container, Button, Card, CardContent, Chip, Grid } from '@mui/material';
+import { Box, Typography, Container, Button, Card, CardContent, Chip, Grid, useTheme } from '@mui/material';
 import { Star, Check, LocalOffer, Event } from '@mui/icons-material';
 
 const Tickets: React.FC = () => {
+  const theme = useTheme();
   const tickets = [
     {
       name: 'Acceso General',
@@ -45,7 +46,7 @@ const Tickets: React.FC = () => {
       id="tickets"
       sx={{
         py: 8,
-        backgroundColor: '#f8f9fa',
+        backgroundColor: theme.palette.background.default,
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center'
@@ -58,9 +59,9 @@ const Tickets: React.FC = () => {
           sx={{
             textAlign: 'center',
             mb: 2,
-            fontWeight: 'bold',
+            fontWeight: theme.custom.fontWeight.bold,
             color: 'primary.main',
-            fontSize: { xs: '2.5rem', md: '3.5rem' }
+            fontSize: { xs: theme.custom.fontSize.section.xs, md: theme.custom.fontSize.section.md }
           }}
         >
           Entradas
@@ -72,7 +73,7 @@ const Tickets: React.FC = () => {
             textAlign: 'center',
             mb: 2,
             color: 'text.secondary',
-            fontWeight: 300
+            fontWeight: theme.custom.fontWeight.light
           }}
         >
           ¡Asegura tu lugar en esta experiencia transformadora!
@@ -83,15 +84,15 @@ const Tickets: React.FC = () => {
             textAlign: 'center',
             mb: 6,
             p: 2,
-            backgroundColor: '#ff4081',
-            borderRadius: 2,
+            backgroundColor: theme.palette.secondary.main,
+            borderRadius: theme.custom.borderRadius.small,
             color: 'white',
             maxWidth: '600px',
             mx: 'auto'
           }}
         >
           <LocalOffer sx={{ mr: 1, verticalAlign: 'middle' }} />
-          <Typography variant="h6" component="span" sx={{ fontWeight: 'bold' }}>
+          <Typography variant="h6" component="span" sx={{ fontWeight: theme.custom.fontWeight.bold }}>
             Cupos Limitados - ¡Solo quedan pocas entradas!
           </Typography>
         </Box>
@@ -103,12 +104,12 @@ const Tickets: React.FC = () => {
                 sx={{
                   height: '100%',
                   position: 'relative',
-                  border: ticket.popular ? '3px solid #ff4081' : '1px solid #e0e0e0',
-                  borderRadius: 3,
+                  border: ticket.popular ? `3px solid ${theme.palette.secondary.main}` : '1px solid #e0e0e0',
+                  borderRadius: theme.custom.borderRadius.medium,
                   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                   '&:hover': {
                     transform: 'translateY(-10px)',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+                    boxShadow: theme.palette.custom.shadow.heavy
                   }
                 }}
               >
@@ -120,7 +121,7 @@ const Tickets: React.FC = () => {
                       top: -12,
                       left: '50%',
                       transform: 'translateX(-50%)',
-                      backgroundColor: '#ff4081',
+                      backgroundColor: theme.palette.secondary.main,
                       color: 'white',
                       fontWeight: 'bold',
                       zIndex: 1
@@ -130,7 +131,7 @@ const Tickets: React.FC = () => {
                 )}
 
                 <CardContent sx={{ p: 4, textAlign: 'center' }}>
-                  <Typography variant="h4" component="h3" sx={{ mb: 2, fontWeight: 'bold', color: 'primary.main' }}>
+                  <Typography variant="h4" component="h3" sx={{ mb: 2, fontWeight: theme.custom.fontWeight.bold, color: 'primary.main' }}>
                     {ticket.name}
                   </Typography>
 
@@ -138,7 +139,7 @@ const Tickets: React.FC = () => {
                     <Typography
                       variant="h3"
                       component="span"
-                      sx={{ fontWeight: 'bold', color: '#ff4081' }}
+                      sx={{ fontWeight: theme.custom.fontWeight.bold, color: theme.palette.secondary.main }}
                     >
                       {ticket.price}
                     </Typography>
@@ -158,7 +159,7 @@ const Tickets: React.FC = () => {
                   <Box sx={{ mb: 4, textAlign: 'left' }}>
                     {ticket.features.map((feature, featureIndex) => (
                       <Box key={featureIndex} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Check sx={{ color: '#4caf50', mr: 2, fontSize: 20 }} />
+                        <Check sx={{ color: theme.palette.custom.success, mr: 2, fontSize: 20 }} />
                         <Typography variant="body1">
                           {feature}
                         </Typography>
@@ -173,11 +174,11 @@ const Tickets: React.FC = () => {
                     sx={{
                       py: 2,
                       fontSize: '1.1rem',
-                      borderRadius: 2,
+                      borderRadius: theme.custom.borderRadius.small,
                       ...(ticket.popular && {
-                        backgroundColor: '#ff4081',
+                        backgroundColor: theme.palette.secondary.main,
                         '&:hover': {
-                          backgroundColor: '#e91e63',
+                          backgroundColor: theme.palette.secondary.dark,
                         }
                       })
                     }}
@@ -195,13 +196,13 @@ const Tickets: React.FC = () => {
             textAlign: 'center',
             p: 4,
             backgroundColor: 'white',
-            borderRadius: 3,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            borderRadius: theme.custom.borderRadius.medium,
+            boxShadow: theme.palette.custom.shadow.light,
             mb: 4
           }}
         >
           <Event sx={{ fontSize: 40, color: 'primary.main', mb: 2 }} />
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold', color: 'primary.main' }}>
+          <Typography variant="h5" sx={{ mb: 2, fontWeight: theme.custom.fontWeight.bold, color: 'primary.main' }}>
             {eventInfo.date}
           </Typography>
           <Typography variant="h6" sx={{ mb: 1, color: 'text.secondary' }}>

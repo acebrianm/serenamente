@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Typography, Container, Grid } from '@mui/material';
+import { Box, Typography, Container, Grid, useTheme } from '@mui/material';
 import { Favorite, Nature, Person } from '@mui/icons-material';
 
 const Mission: React.FC = () => {
+  const theme = useTheme();
   const values = [
     {
       icon: Favorite,
@@ -31,7 +32,7 @@ const Mission: React.FC = () => {
         minHeight: '80vh',
         display: 'flex',
         alignItems: 'center',
-        background: 'linear-gradient(135deg, #0066ff 0%, #004bb5 100%)',
+        background: theme.palette.custom.mission.gradient,
         position: 'relative',
         '&::before': {
           content: '""',
@@ -40,7 +41,7 @@ const Mission: React.FC = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'url("data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="rgba(255,255,255,0.03)" fill-rule="evenodd"%3E%3Cpath d="M20 20c0-11.046-8.954-20-20-20v20h20zm0 0c11.046 0 20 8.954 20 20H20V20z"/%3E%3C/g%3E%3C/svg%3E")',
+          background: theme.palette.custom.mission.pattern,
         }
       }}
     >
@@ -51,8 +52,8 @@ const Mission: React.FC = () => {
           sx={{
             textAlign: 'center',
             mb: 2,
-            fontWeight: 'bold',
-            fontSize: { xs: '2.5rem', md: '3.5rem' }
+            fontWeight: theme.custom.fontWeight.bold,
+            fontSize: { xs: theme.custom.fontSize.section.xs, md: theme.custom.fontSize.section.md }
           }}
         >
           Nuestra Misión
@@ -64,7 +65,7 @@ const Mission: React.FC = () => {
             textAlign: 'center',
             mb: 4,
             opacity: 0.9,
-            fontWeight: 300
+            fontWeight: theme.custom.fontWeight.light
           }}
         >
           Transformando vidas a través del bienestar integral
@@ -91,10 +92,10 @@ const Mission: React.FC = () => {
                 sx={{
                   textAlign: 'center',
                   p: 3,
-                  borderRadius: 3,
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: theme.custom.borderRadius.medium,
+                  backgroundColor: theme.palette.custom.overlay.light,
                   backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  border: `1px solid ${theme.palette.custom.overlay.light}`,
                   transition: 'transform 0.3s ease',
                   '&:hover': {
                     transform: 'translateY(-5px)',
@@ -111,7 +112,7 @@ const Mission: React.FC = () => {
                 <Typography
                   variant="h6"
                   component="h3"
-                  sx={{ mb: 2, fontWeight: 'bold' }}
+                  sx={{ mb: 2, fontWeight: theme.custom.fontWeight.bold }}
                 >
                   {value.title}
                 </Typography>
@@ -130,10 +131,10 @@ const Mission: React.FC = () => {
           sx={{
             textAlign: 'center',
             p: 4,
-            borderRadius: 3,
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: theme.custom.borderRadius.medium,
+            backgroundColor: theme.palette.custom.overlay.light,
             backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
+            border: `1px solid ${theme.palette.custom.overlay.light}`,
           }}
         >
           <Typography

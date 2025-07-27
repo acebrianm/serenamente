@@ -41,7 +41,7 @@ describe('Contact Component', () => {
 
   test('renders all form fields', () => {
     renderWithTheme(<Contact />);
-    
+
     // Check that form fields are present by their input types
     const inputs = screen.getAllByRole('textbox');
     expect(inputs.length).toBeGreaterThanOrEqual(3); // name, email, message fields
@@ -54,16 +54,14 @@ describe('Contact Component', () => {
 
   test('renders contact method cards', () => {
     renderWithTheme(<Contact />);
-    
+
     expect(screen.getAllByText('WhatsApp')).toHaveLength(2); // Contact card and CTA button
     expect(screen.getAllByText('Email')).toHaveLength(2); // Contact card and CTA button
-    expect(screen.getByText('Teléfono')).toBeInTheDocument();
-    expect(screen.getByText('Ubicación')).toBeInTheDocument();
   });
 
   test('renders contact information', () => {
     renderWithTheme(<Contact />);
-    
+
     expect(screen.getAllByText('+1 234 567 890')).toHaveLength(2); // Contact section and Footer
     expect(screen.getAllByText('info@serenamente.com')).toHaveLength(1); // Contact section only (footer uses link)
     expect(screen.getByText('Centro de Convenciones Internacional, Ciudad')).toBeInTheDocument();
@@ -76,7 +74,7 @@ describe('Contact Component', () => {
 
   test('form submission opens mailto link', () => {
     renderWithTheme(<Contact />);
-    
+
     const submitButton = screen.getByText('Enviar Mensaje');
     fireEvent.click(submitButton);
 
@@ -87,7 +85,7 @@ describe('Contact Component', () => {
 
   test('WhatsApp button opens correct URL', () => {
     renderWithTheme(<Contact />);
-    
+
     const whatsappButtons = screen.getAllByText('WhatsApp');
     fireEvent.click(whatsappButtons[0]);
 

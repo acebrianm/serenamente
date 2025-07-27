@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Typography, Container, Card, CardContent, Grid } from '@mui/material';
+import { Box, Typography, Container, Card, CardContent, Grid, useTheme } from '@mui/material';
 import { Psychology, Group, Star, Schedule } from '@mui/icons-material';
 
 const About: React.FC = () => {
+  const theme = useTheme();
   const features = [
     {
       icon: Psychology,
@@ -44,9 +45,9 @@ const About: React.FC = () => {
           sx={{
             textAlign: 'center',
             mb: 6,
-            fontWeight: 'bold',
+            fontWeight: theme.custom.fontWeight.bold,
             color: 'primary.main',
-            fontSize: { xs: '2.5rem', md: '3.5rem' }
+            fontSize: { xs: theme.custom.fontSize.section.xs, md: theme.custom.fontSize.section.md }
           }}
         >
           Acerca de la Conferencia
@@ -89,10 +90,10 @@ const About: React.FC = () => {
                   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                   '&:hover': {
                     transform: 'translateY(-10px)',
-                    boxShadow: '0 12px 25px rgba(0,0,0,0.15)'
+                    boxShadow: theme.palette.custom.shadow.heavy
                   },
-                  borderRadius: 3,
-                  border: '1px solid rgba(0, 102, 255, 0.1)'
+                  borderRadius: theme.custom.borderRadius.medium,
+                  border: `1px solid ${theme.palette.custom.overlay.light}`
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
@@ -106,7 +107,7 @@ const About: React.FC = () => {
                   <Typography
                     variant="h6"
                     component="h3"
-                    sx={{ mb: 2, fontWeight: 'bold', color: 'primary.main' }}
+                    sx={{ mb: 2, fontWeight: theme.custom.fontWeight.bold, color: 'primary.main' }}
                   >
                     {feature.title}
                   </Typography>

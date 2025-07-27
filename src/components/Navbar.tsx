@@ -36,9 +36,9 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <AppBar position="fixed" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(10px)' }}>
+    <AppBar position="fixed" sx={{ backgroundColor: theme.palette.custom.overlay.light, backdropFilter: 'blur(10px)' }}>
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'primary.main', fontWeight: 'bold' }}>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'primary.main', fontWeight: theme.custom.fontWeight.bold }}>
           Serenamente
         </Typography>
 
@@ -87,7 +87,7 @@ const Navbar: React.FC = () => {
                   sx={{
                     color: 'primary.main',
                     '&:hover': {
-                      backgroundColor: 'rgba(0, 102, 255, 0.1)',
+                      backgroundColor: theme.palette.custom.overlay.light,
                     },
                   }}
                 >
