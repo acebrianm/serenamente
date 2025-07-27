@@ -1,31 +1,29 @@
-import React, { useState } from 'react';
+import { Email, Send, WhatsApp } from '@mui/icons-material';
 import {
   Box,
-  Typography,
-  Container,
+  Button,
   Card,
   CardContent,
-  Button,
-  TextField,
-  IconButton,
+  Container,
   Grid,
-  useTheme
+  IconButton,
+  TextField,
+  Typography,
+  useTheme,
 } from '@mui/material';
-import { WhatsApp, Email, Send } from '@mui/icons-material';
+import React, { useState } from 'react';
 
 const Contact: React.FC = () => {
   const theme = useTheme();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    message: ''
+    message: '',
   });
 
   const contactInfo = {
-    phone: '+1 234 567 890',
     email: 'info@serenamente.com',
     whatsapp: '+1 234 567 890',
-    location: 'Centro de Convenciones Internacional, Ciudad'
   };
 
   const whatsappMessage = 'Hola, me interesa la conferencia Serenamente';
@@ -34,7 +32,7 @@ const Contact: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -55,63 +53,34 @@ const Contact: React.FC = () => {
       title: 'WhatsApp',
       value: contactInfo.whatsapp,
       action: handleWhatsApp,
-      color: theme.palette.custom.social.whatsapp
+      color: theme.palette.custom.social.whatsapp,
     },
     {
       icon: Email,
       title: 'Email',
       value: contactInfo.email,
       action: () => window.open(`mailto:${contactInfo.email}?subject=${emailSubject}`),
-      color: theme.palette.custom.social.gmail
+      color: theme.palette.custom.social.gmail,
     },
   ];
 
   return (
-    <Box
-      id="contact"
-      sx={{
-        py: 8,
-        backgroundColor: 'background.default',
-        minHeight: '80vh'
-      }}
-    >
+    <Box id="contact" sx={styles.contactSection}>
       <Container maxWidth="lg">
-        <Typography
-          variant="h2"
-          component="h2"
-          sx={{
-            textAlign: 'center',
-            mb: 2,
-            fontWeight: theme.custom.fontWeight.bold,
-            color: 'primary.main',
-            fontSize: { xs: theme.custom.fontSize.section.xs, md: theme.custom.fontSize.section.md }
-          }}
-        >
+        <Typography variant="h2" component="h2" sx={styles.sectionTitle(theme)}>
           Contacto
         </Typography>
 
-        <Typography
-          variant="h5"
-          sx={{
-            textAlign: 'center',
-            mb: 6,
-            color: 'text.secondary',
-            fontWeight: theme.custom.fontWeight.light
-          }}
-        >
+        <Typography variant="h5" sx={styles.subtitle(theme)}>
           ¿Tienes preguntas? Estamos aquí para ayudarte
         </Typography>
 
+        <Typography variant="h4" sx={styles.formTitle}>
+          Envíanos un mensaje
+        </Typography>
         <Grid container spacing={4}>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Typography
-              variant="h4"
-              sx={{ mb: 4, fontWeight: 'bold', color: 'primary.main' }}
-            >
-              Envíanos un mensaje
-            </Typography>
-
-            <Card sx={{ p: 3, borderRadius: theme.custom.borderRadius.medium, boxShadow: theme.palette.custom.shadow.medium }}>
+            <Card sx={styles.formCard(theme)}>
               <form onSubmit={handleSubmit}>
                 <TextField
                   fullWidth
@@ -119,7 +88,7 @@ const Contact: React.FC = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  sx={{ mb: 3 }}
+                  sx={styles.formField}
                   required
                 />
 
@@ -130,7 +99,7 @@ const Contact: React.FC = () => {
                   type="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  sx={{ mb: 3 }}
+                  sx={styles.formField}
                   required
                 />
 
@@ -142,7 +111,7 @@ const Contact: React.FC = () => {
                   rows={4}
                   value={formData.message}
                   onChange={handleInputChange}
-                  sx={{ mb: 3 }}
+                  sx={styles.formField}
                   required
                 />
 
@@ -152,13 +121,7 @@ const Contact: React.FC = () => {
                   size="large"
                   fullWidth
                   startIcon={<Send />}
-                  sx={{
-                    py: 2,
-                    backgroundColor: theme.palette.secondary.main,
-                    '&:hover': {
-                      backgroundColor: theme.palette.secondary.dark,
-                    }
-                  }}
+                  sx={styles.submitButton(theme)}
                 >
                   Enviar Mensaje
                 </Button>
@@ -171,45 +134,22 @@ const Contact: React.FC = () => {
               {contactMethods.map((method, index) => (
                 <Grid size={{ xs: 12, sm: 6 }} key={index}>
                   <Card
-                    sx={{
-                      p: 3,
-                      textAlign: 'center',
-                      borderRadius: theme.custom.borderRadius.medium,
-                      cursor: method.action !== (() => {}) ? 'pointer' : 'default',
-                      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                      '&:hover': {
-                        transform: method.action !== (() => {}) ? 'translateY(-5px)' : 'none',
-                        boxShadow: theme.palette.custom.shadow.heavy
-                      },
-                      border: `2px solid ${method.color}20`
-                    }}
+                    sx={styles.contactMethodCard(theme, method.color, method.action)}
                     onClick={method.action}
                   >
                     <CardContent>
-                      <IconButton
-                        sx={{
-                          backgroundColor: `${method.color}20`,
-                          color: method.color,
-                          mb: 2,
-                          '&:hover': {
-                            backgroundColor: `${method.color}30`,
-                          }
-                        }}
-                      >
-                        <method.icon sx={{ fontSize: 30 }} />
+                      <IconButton sx={styles.contactMethodIcon(method.color)}>
+                        <method.icon sx={styles.contactMethodIconSize} />
                       </IconButton>
 
-                      <Typography
-                        variant="h6"
-                        sx={{ mb: 1, fontWeight: 'bold', color: method.color }}
-                      >
+                      <Typography variant="h6" sx={styles.contactMethodTitle(method.color)}>
                         {method.title}
                       </Typography>
 
                       <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{ wordBreak: 'break-word' }}
+                        sx={styles.contactMethodValue}
                       >
                         {method.value}
                       </Typography>
@@ -219,17 +159,8 @@ const Contact: React.FC = () => {
               ))}
             </Grid>
 
-            <Box
-              sx={{
-                mt: 4,
-                p: 3,
-                backgroundColor: 'primary.main',
-                borderRadius: theme.custom.borderRadius.medium,
-                color: 'white',
-                textAlign: 'center'
-              }}
-            >
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+            <Box sx={styles.ctaSection(theme)}>
+              <Typography variant="h6" sx={styles.ctaTitle}>
                 ¡Contáctanos ahora!
               </Typography>
 
@@ -238,14 +169,7 @@ const Contact: React.FC = () => {
                 size="large"
                 startIcon={<WhatsApp />}
                 onClick={handleWhatsApp}
-                sx={{
-                  backgroundColor: theme.palette.custom.social.whatsapp,
-                  '&:hover': {
-                    backgroundColor: '#20b954',
-                  },
-                  mr: 2,
-                  mb: { xs: 2, sm: 0 }
-                }}
+                sx={styles.whatsappButton(theme)}
               >
                 WhatsApp
               </Button>
@@ -255,14 +179,7 @@ const Contact: React.FC = () => {
                 size="large"
                 startIcon={<Email />}
                 onClick={() => window.open(`mailto:${contactInfo.email}?subject=${emailSubject}`)}
-                sx={{
-                  borderColor: 'white',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    borderColor: 'white',
-                  }
-                }}
+                sx={styles.emailButton}
               >
                 Email
               </Button>
@@ -272,6 +189,106 @@ const Contact: React.FC = () => {
       </Container>
     </Box>
   );
+};
+
+const styles = {
+  contactSection: {
+    py: 8,
+    backgroundColor: 'background.default',
+    minHeight: '80vh',
+  },
+  sectionTitle: (theme: any) => ({
+    textAlign: 'center',
+    mb: 2,
+    fontWeight: theme.custom.fontWeight.bold,
+    color: 'primary.main',
+    fontSize: { xs: theme.custom.fontSize.section.xs, md: theme.custom.fontSize.section.md },
+  }),
+  subtitle: (theme: any) => ({
+    textAlign: 'center',
+    mb: 6,
+    color: 'text.secondary',
+    fontWeight: theme.custom.fontWeight.light,
+  }),
+  formTitle: {
+    mb: 4,
+    fontWeight: 'bold',
+    color: 'primary.main',
+  },
+  formCard: (theme: any) => ({
+    p: 3,
+    borderRadius: theme.custom.borderRadius.medium,
+    boxShadow: theme.palette.custom.shadow.medium,
+  }),
+  formField: {
+    mb: 3,
+  },
+  submitButton: (theme: any) => ({
+    py: 2,
+    backgroundColor: theme.palette.secondary.main,
+    '&:hover': {
+      backgroundColor: theme.palette.secondary.dark,
+    },
+  }),
+  contactMethodCard: (theme: any, methodColor: string, methodAction: any) => ({
+    p: 3,
+    textAlign: 'center',
+    borderRadius: theme.custom.borderRadius.medium,
+    cursor: methodAction !== (() => {}) ? 'pointer' : 'default',
+    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+    '&:hover': {
+      transform: methodAction !== (() => {}) ? 'translateY(-5px)' : 'none',
+      boxShadow: theme.palette.custom.shadow.heavy,
+    },
+    border: `2px solid ${methodColor}20`,
+  }),
+  contactMethodIcon: (methodColor: string) => ({
+    backgroundColor: `${methodColor}20`,
+    color: methodColor,
+    mb: 2,
+    '&:hover': {
+      backgroundColor: `${methodColor}30`,
+    },
+  }),
+  contactMethodIconSize: {
+    fontSize: 30,
+  },
+  contactMethodTitle: (methodColor: string) => ({
+    mb: 1,
+    fontWeight: 'bold',
+    color: methodColor,
+  }),
+  contactMethodValue: {
+    wordBreak: 'break-word',
+  },
+  ctaSection: (theme: any) => ({
+    mt: 4,
+    p: 3,
+    backgroundColor: 'primary.main',
+    borderRadius: theme.custom.borderRadius.medium,
+    color: 'white',
+    textAlign: 'center',
+  }),
+  ctaTitle: {
+    mb: 2,
+    fontWeight: 'bold',
+  },
+  whatsappButton: (theme: any) => ({
+    backgroundColor: theme.palette.custom.social.whatsapp,
+    '&:hover': {
+      backgroundColor: '#20b954',
+    },
+    mr: 2,
+    mb: { xs: 2, sm: 0 },
+  }),
+  emailButton: {
+    borderColor: 'white',
+    color: 'white',
+    '&:hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      borderColor: 'white',
+    },
+  },
 };
 
 export default Contact;

@@ -1,15 +1,11 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
 import theme from '../theme/theme';
 import Mission from './Mission';
 
 const renderWithTheme = (component: React.ReactElement) => {
-  return render(
-    <ThemeProvider theme={theme}>
-      {component}
-    </ThemeProvider>
-  );
+  return render(<ThemeProvider theme={theme}>{component}</ThemeProvider>);
 };
 
 describe('Mission Component', () => {
@@ -20,17 +16,21 @@ describe('Mission Component', () => {
 
   test('renders subtitle', () => {
     renderWithTheme(<Mission />);
-    expect(screen.getByText('Transformando vidas a través del bienestar integral')).toBeInTheDocument();
+    expect(
+      screen.getByText('Transformando vidas a través del bienestar integral')
+    ).toBeInTheDocument();
   });
 
   test('renders mission description', () => {
     renderWithTheme(<Mission />);
-    expect(screen.getByText(/En Serenamente, creemos que cada persona merece vivir/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/En Serenamente, creemos que cada persona merece vivir/)
+    ).toBeInTheDocument();
   });
 
   test('renders all value propositions', () => {
     renderWithTheme(<Mission />);
-    
+
     expect(screen.getByText('Bienestar Integral')).toBeInTheDocument();
     expect(screen.getByText('Conexión Natural')).toBeInTheDocument();
     expect(screen.getByText('Crecimiento Personal')).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe('Mission Component', () => {
 
   test('renders value descriptions', () => {
     renderWithTheme(<Mission />);
-    
+
     expect(screen.getByText(/Promovemos un enfoque holístico/)).toBeInTheDocument();
     expect(screen.getByText(/Fomentamos la reconexión con nosotros mismos/)).toBeInTheDocument();
     expect(screen.getByText(/Facilitamos herramientas prácticas/)).toBeInTheDocument();
@@ -51,7 +51,9 @@ describe('Mission Component', () => {
 
   test('has mission section id for navigation', () => {
     renderWithTheme(<Mission />);
-    const missionSection = screen.getByRole('heading', { name: 'Nuestra Misión' }).closest('#mission');
+    const missionSection = screen
+      .getByRole('heading', { name: 'Nuestra Misión' })
+      .closest('#mission');
     expect(missionSection).toBeInTheDocument();
   });
 });

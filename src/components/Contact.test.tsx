@@ -1,15 +1,11 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
+import { fireEvent, render, screen } from '@testing-library/react';
+import React from 'react';
 import theme from '../theme/theme';
 import Contact from './Contact';
 
 const renderWithTheme = (component: React.ReactElement) => {
-  return render(
-    <ThemeProvider theme={theme}>
-      {component}
-    </ThemeProvider>
-  );
+  return render(<ThemeProvider theme={theme}>{component}</ThemeProvider>);
 };
 
 // Mock window.open
@@ -62,9 +58,7 @@ describe('Contact Component', () => {
   test('renders contact information', () => {
     renderWithTheme(<Contact />);
 
-    expect(screen.getAllByText('+1 234 567 890')).toHaveLength(2); // Contact section and Footer
     expect(screen.getAllByText('info@serenamente.com')).toHaveLength(1); // Contact section only (footer uses link)
-    expect(screen.getByText('Centro de Convenciones Internacional, Ciudad')).toBeInTheDocument();
   });
 
   test('renders call-to-action section', () => {
@@ -78,9 +72,7 @@ describe('Contact Component', () => {
     const submitButton = screen.getByText('Enviar Mensaje');
     fireEvent.click(submitButton);
 
-    expect(mockOpen).toHaveBeenCalledWith(
-      expect.stringContaining('mailto:info@serenamente.com')
-    );
+    expect(mockOpen).toHaveBeenCalledWith(expect.stringContaining('mailto:info@serenamente.com'));
   });
 
   test('WhatsApp button opens correct URL', () => {
@@ -89,10 +81,7 @@ describe('Contact Component', () => {
     const whatsappButtons = screen.getAllByText('WhatsApp');
     fireEvent.click(whatsappButtons[0]);
 
-    expect(mockOpen).toHaveBeenCalledWith(
-      expect.stringContaining('https://wa.me/'),
-      '_blank'
-    );
+    expect(mockOpen).toHaveBeenCalledWith(expect.stringContaining('https://wa.me/'), '_blank');
   });
 
   test('has contact section id for navigation', () => {

@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
+import { Menu as MenuIcon } from '@mui/icons-material';
 import {
   AppBar,
-  Toolbar,
-  Typography,
-  Button,
   Box,
+  Button,
   IconButton,
   Menu,
   MenuItem,
-  useTheme,
+  Toolbar,
+  Typography,
   useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import { Menu as MenuIcon } from '@mui/icons-material';
+import React, { useState } from 'react';
 import { Link } from 'react-scroll';
 
 const Navbar: React.FC = () => {
@@ -36,9 +36,9 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <AppBar position="fixed" sx={{ backgroundColor: theme.palette.custom.overlay.light, backdropFilter: 'blur(10px)' }}>
+    <AppBar position="fixed" sx={styles.appBar(theme)}>
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'primary.main', fontWeight: theme.custom.fontWeight.bold }}>
+        <Typography variant="h6" component="div" sx={styles.brandName(theme)}>
           Serenamente
         </Typography>
 
@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
               color="inherit"
               aria-label="menu"
               onClick={handleMobileMenuOpen}
-              sx={{ color: 'primary.main' }}
+              sx={styles.mobileMenuButton}
             >
               <MenuIcon />
             </IconButton>
@@ -59,14 +59,9 @@ const Navbar: React.FC = () => {
               open={Boolean(mobileMenuAnchor)}
               onClose={handleMobileMenuClose}
             >
-              {menuItems.map((item) => (
+              {menuItems.map(item => (
                 <MenuItem key={item.id} onClick={handleMobileMenuClose}>
-                  <Link
-                    to={item.id}
-                    smooth={true}
-                    duration={500}
-                    style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}
-                  >
+                  <Link to={item.id} smooth={true} duration={500} style={styles.mobileMenuLink}>
                     {item.label}
                   </Link>
                 </MenuItem>
@@ -74,25 +69,16 @@ const Navbar: React.FC = () => {
             </Menu>
           </>
         ) : (
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            {menuItems.map((item) => (
+          <Box sx={styles.desktopMenuContainer}>
+            {menuItems.map(item => (
               <Link
                 key={item.id}
                 to={item.id}
                 smooth={true}
                 duration={500}
-                style={{ textDecoration: 'none' }}
+                style={styles.desktopMenuLink}
               >
-                <Button
-                  sx={{
-                    color: 'primary.main',
-                    '&:hover': {
-                      backgroundColor: theme.palette.custom.overlay.light,
-                    },
-                  }}
-                >
-                  {item.label}
-                </Button>
+                <Button sx={styles.desktopMenuButton(theme)}>{item.label}</Button>
               </Link>
             ))}
           </Box>
@@ -100,6 +86,39 @@ const Navbar: React.FC = () => {
       </Toolbar>
     </AppBar>
   );
+};
+
+const styles = {
+  appBar: (theme: any) => ({
+    backgroundColor: theme.palette.background.paper,
+    backdropFilter: 'blur(10px)',
+  }),
+  brandName: (theme: any) => ({
+    flexGrow: 1,
+    color: 'primary.main',
+    fontWeight: theme.custom.fontWeight.bold,
+  }),
+  mobileMenuButton: {
+    color: 'primary.main',
+  },
+  mobileMenuLink: {
+    textDecoration: 'none',
+    color: 'inherit',
+    width: '100%',
+  },
+  desktopMenuContainer: {
+    display: 'flex',
+    gap: 2,
+  },
+  desktopMenuLink: {
+    textDecoration: 'none',
+  },
+  desktopMenuButton: (theme: any) => ({
+    color: 'primary.main',
+    '&:hover': {
+      backgroundColor: theme.palette.custom.overlay.light,
+    },
+  }),
 };
 
 export default Navbar;

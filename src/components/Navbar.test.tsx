@@ -1,15 +1,11 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
 import theme from '../theme/theme';
 import Navbar from './Navbar';
 
 const renderWithTheme = (component: React.ReactElement) => {
-  return render(
-    <ThemeProvider theme={theme}>
-      {component}
-    </ThemeProvider>
-  );
+  return render(<ThemeProvider theme={theme}>{component}</ThemeProvider>);
 };
 
 describe('Navbar Component', () => {
@@ -20,7 +16,7 @@ describe('Navbar Component', () => {
 
   test('renders all navigation menu items', () => {
     renderWithTheme(<Navbar />);
-    
+
     expect(screen.getByText('Inicio')).toBeInTheDocument();
     expect(screen.getByText('Acerca de')).toBeInTheDocument();
     expect(screen.getByText('Misión')).toBeInTheDocument();

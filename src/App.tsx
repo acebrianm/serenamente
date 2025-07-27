@@ -1,13 +1,12 @@
-import React from 'react';
-import { ThemeProvider, CssBaseline } from '@mui/material';
-import theme from './theme/theme';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import About from './components/About';
-import Mission from './components/Mission';
-import Tickets from './components/Tickets';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import Hero from './components/Hero';
+import Mission from './components/Mission';
+import Navbar from './components/Navbar';
+import Tickets from './components/Tickets';
+import theme from './theme/theme';
 
 function App() {
   return (
@@ -27,3 +26,4 @@ function App() {
 }
 
 export default App;
+// test comment

@@ -1,15 +1,11 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
 import theme from '../theme/theme';
 import Footer from './Footer';
 
 const renderWithTheme = (component: React.ReactElement) => {
-  return render(
-    <ThemeProvider theme={theme}>
-      {component}
-    </ThemeProvider>
-  );
+  return render(<ThemeProvider theme={theme}>{component}</ThemeProvider>);
 };
 
 describe('Footer Component', () => {
@@ -20,7 +16,9 @@ describe('Footer Component', () => {
 
   test('renders tagline', () => {
     renderWithTheme(<Footer />);
-    expect(screen.getByText('Transformando vidas a través del bienestar integral')).toBeInTheDocument();
+    expect(
+      screen.getByText('Transformando vidas a través del bienestar integral')
+    ).toBeInTheDocument();
   });
 
   test('renders quick links section', () => {
@@ -30,7 +28,7 @@ describe('Footer Component', () => {
 
   test('renders all navigation links', () => {
     renderWithTheme(<Footer />);
-    
+
     expect(screen.getByText('Inicio')).toBeInTheDocument();
     expect(screen.getByText('Acerca de')).toBeInTheDocument();
     expect(screen.getByText('Misión')).toBeInTheDocument();
@@ -45,7 +43,7 @@ describe('Footer Component', () => {
 
   test('renders contact information', () => {
     renderWithTheme(<Footer />);
-    
+
     expect(screen.getByText('info@serenamente.com')).toBeInTheDocument();
     expect(screen.getByText('+1 234 567 890')).toBeInTheDocument();
   });
@@ -57,7 +55,7 @@ describe('Footer Component', () => {
 
   test('renders legal links', () => {
     renderWithTheme(<Footer />);
-    
+
     expect(screen.getByText('Política de Privacidad')).toBeInTheDocument();
     expect(screen.getByText('Términos y Condiciones')).toBeInTheDocument();
     expect(screen.getByText('Política de Cookies')).toBeInTheDocument();
@@ -65,7 +63,9 @@ describe('Footer Component', () => {
 
   test('renders copyright text', () => {
     renderWithTheme(<Footer />);
-    expect(screen.getByText('© 2024 Serenamente. Todos los derechos reservados.')).toBeInTheDocument();
+    expect(
+      screen.getByText('© 2024 Serenamente. Todos los derechos reservados.')
+    ).toBeInTheDocument();
   });
 
   test('renders made with love text', () => {
@@ -75,14 +75,14 @@ describe('Footer Component', () => {
 
   test('renders social media section', () => {
     renderWithTheme(<Footer />);
-    
+
     // Check that footer contains social media icons by checking for the brand name
     expect(screen.getByText('Serenamente')).toBeInTheDocument();
   });
 
   test('footer has correct structure', () => {
     renderWithTheme(<Footer />);
-    
+
     expect(screen.getByText('Enlaces Rápidos')).toBeInTheDocument();
     expect(screen.getAllByText('Contacto')).toHaveLength(2); // Once in navigation, once in footer section
     expect(screen.getByText('Legal')).toBeInTheDocument();

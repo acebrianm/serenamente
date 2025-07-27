@@ -1,15 +1,11 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
 import theme from '../theme/theme';
 import About from './About';
 
 const renderWithTheme = (component: React.ReactElement) => {
-  return render(
-    <ThemeProvider theme={theme}>
-      {component}
-    </ThemeProvider>
-  );
+  return render(<ThemeProvider theme={theme}>{component}</ThemeProvider>);
 };
 
 describe('About Component', () => {
@@ -30,7 +26,7 @@ describe('About Component', () => {
 
   test('renders all feature cards', () => {
     renderWithTheme(<About />);
-    
+
     expect(screen.getByText('Expertos Reconocidos')).toBeInTheDocument();
     expect(screen.getByText('Networking')).toBeInTheDocument();
     expect(screen.getByText('Experiencias Únicas')).toBeInTheDocument();
@@ -39,23 +35,35 @@ describe('About Component', () => {
 
   test('renders feature descriptions', () => {
     renderWithTheme(<About />);
-    
-    expect(screen.getByText('Conferencistas de clase mundial en psicología y bienestar')).toBeInTheDocument();
-    expect(screen.getByText('Conecta con personas que comparten tu interés en el crecimiento personal')).toBeInTheDocument();
-    expect(screen.getByText('Talleres interactivos y sesiones de mindfulness en vivo')).toBeInTheDocument();
-    expect(screen.getByText('Herramientas y técnicas que puedes aplicar inmediatamente')).toBeInTheDocument();
+
+    expect(
+      screen.getByText('Conferencistas de clase mundial en psicología y bienestar')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Conecta con personas que comparten tu interés en el crecimiento personal')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Talleres interactivos y sesiones de mindfulness en vivo')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Herramientas y técnicas que puedes aplicar inmediatamente')
+    ).toBeInTheDocument();
   });
 
   test('has about section id for navigation', () => {
     renderWithTheme(<About />);
-    const aboutSection = screen.getByRole('heading', { name: 'Acerca de la Conferencia' }).closest('#about');
+    const aboutSection = screen
+      .getByRole('heading', { name: 'Acerca de la Conferencia' })
+      .closest('#about');
     expect(aboutSection).toBeInTheDocument();
   });
 
   test('renders feature cards with proper structure', () => {
     renderWithTheme(<About />);
-    
-    const cards = screen.getAllByText(/Expertos Reconocidos|Networking|Experiencias Únicas|Contenido Práctico/);
+
+    const cards = screen.getAllByText(
+      /Expertos Reconocidos|Networking|Experiencias Únicas|Contenido Práctico/
+    );
     expect(cards).toHaveLength(4);
   });
 });
