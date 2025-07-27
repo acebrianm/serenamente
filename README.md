@@ -1,46 +1,177 @@
-# Getting Started with Create React App
+# 🎯 Serenamente Conference Website
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive Single Page Application (SPA) built with React and Material-UI to promote the Serenamente conference focused on mental wellness and personal development.
 
-## Available Scripts
+## ✨ Features
 
-In the project directory, you can run:
+- **Responsive Design**: Optimized for all devices and screen sizes
+- **Bilingual Support**: Spanish and English language options
+- **Smooth Scrolling**: Seamless navigation between sections
+- **Modern UI**: Clean, professional design with Material-UI components
+- **Interactive Elements**: Hover effects, animations, and transitions
+- **Contact Integration**: WhatsApp and email integration for easy communication
 
-### `npm start`
+## 🗂 Project Structure
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```
+/src
+  /components
+    Navbar.tsx          # Navigation with language toggle
+    Hero.tsx            # Hero section with CTA
+    About.tsx           # Conference information
+    Mission.tsx         # Mission and values
+    Tickets.tsx         # Pricing and ticket options
+    Contact.tsx         # Contact form and information
+    Footer.tsx          # Footer with social links
+  /theme
+    theme.ts            # MUI theme configuration
+  App.tsx               # Main application component
+  index.tsx             # Application entry point
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## 🛠 Technologies Used
 
-### `npm test`
+- **React** (^19.1.0) - Frontend framework
+- **Material-UI** (^7.2.0) - UI component library
+- **@emotion/react** & **@emotion/styled** - CSS-in-JS styling
+- **react-scroll** - Smooth scrolling navigation
+- **TypeScript** - Type safety and better development experience
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🚀 Getting Started
 
-### `npm run build`
+### Prerequisites
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Node.js (v16 or higher)
+- pnpm (or npm/yarn)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Installation
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd serenamente
+   ```
 
-### `npm run eject`
+2. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+3. **Start the development server**
+   ```bash
+   pnpm start
+   ```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+4. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Available Scripts
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- `pnpm start` - Runs the development server
+- `pnpm build` - Creates production build
+- `pnpm test` - Runs test suite
+- `pnpm eject` - Ejects from Create React App (not recommended)
 
-## Learn More
+## 📱 Sections Overview
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 1. Hero Section
+- Eye-catching gradient background
+- Main conference title and tagline
+- Call-to-action buttons for tickets and information
+- Smooth entrance animations
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 2. About Section
+- Conference description and key features
+- Interactive feature cards with hover effects
+- Information about speakers, networking, and practical content
+
+### 3. Mission Section
+- Conference mission and values
+- Three core pillars: Integral Wellbeing, Natural Connection, Personal Growth
+- Elegant design with gradient background
+
+### 4. Tickets Section
+- Two pricing tiers: General Access and VIP Experience
+- Feature comparison with checkmarks
+- Urgency messaging and special offers
+- Event information (date, location, duration)
+
+### 5. Contact Section
+- Contact form with email integration
+- Multiple contact methods (WhatsApp, Email, Phone)
+- Interactive contact cards
+- Direct action buttons
+
+### 6. Footer
+- Social media links (Instagram, X, LinkedIn, Facebook)
+- Quick navigation links
+- Legal links and copyright information
+- Contact information
+
+## 🌐 Language Support
+
+The website supports both Spanish (default) and English. Users can switch languages using the language toggle in the navigation bar. All content is dynamically translated including:
+
+- Navigation menu items
+- Section headings and content
+- Button labels
+- Form placeholders
+- Contact information
+
+## 🎨 Design Features
+
+- **Color Scheme**: Primary blue (#0066ff) and secondary pink (#ff4081)
+- **Typography**: Inter font family for modern readability
+- **Animations**: Fade-in effects and smooth transitions
+- **Cards**: Elevated cards with hover effects
+- **Buttons**: Rounded buttons with hover animations
+- **Responsive Grid**: Adaptive layout for all screen sizes
+
+## 📞 Contact Integration
+
+- **WhatsApp**: Direct messaging with pre-filled text
+- **Email**: Mailto links with subject lines
+- **Phone**: Direct calling capability
+- **Contact Form**: Email form with validation
+
+## 🚢 Deployment
+
+To deploy the application:
+
+1. **Build for production**
+   ```bash
+   pnpm build
+   ```
+
+2. **Deploy the `build` folder** to your hosting service of choice:
+   - Netlify
+   - Vercel
+   - AWS S3
+   - GitHub Pages
+   - Any static hosting service
+
+## 🔧 Customization
+
+### Theme Customization
+Edit `src/theme/theme.ts` to customize colors, typography, and other design tokens.
+
+### Content Updates
+Update the content objects in each component to modify text, pricing, contact information, etc.
+
+### Adding New Sections
+1. Create a new component in the `components` folder
+2. Import and add it to `App.tsx`
+3. Add navigation link in `Navbar.tsx`
+
+## 🐛 Known Issues
+
+- Some TypeScript strict mode warnings with MUI v7 (does not affect functionality)
+- Smooth scrolling may not work on older browsers
+
+## 📝 License
+
+This project is private and proprietary to Serenamente Conference.
+
+## 🤝 Contributing
+
+For contributions or questions, please contact the development team at info@serenamente.com.
