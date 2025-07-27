@@ -22,8 +22,8 @@ const Contact: React.FC = () => {
   });
 
   const contactInfo = {
-    email: 'info@serenamente.com',
-    whatsapp: '+1 234 567 890',
+    email: 'contacto@serenamente.info ',
+    whatsapp: '+52 55 8036 5253',
   };
 
   const whatsappMessage = 'Hola, me interesa la conferencia Serenamente';

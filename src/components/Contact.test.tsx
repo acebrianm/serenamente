@@ -58,7 +58,7 @@ describe('Contact Component', () => {
   test('renders contact information', () => {
     renderWithTheme(<Contact />);
 
-    expect(screen.getAllByText('info@serenamente.com')).toHaveLength(1); // Contact section only (footer uses link)
+    expect(screen.getAllByText('contacto@serenamente.info')).toHaveLength(1); // Contact section only (footer uses link)
   });
 
   test('renders call-to-action section', () => {
@@ -72,7 +72,9 @@ describe('Contact Component', () => {
     const submitButton = screen.getByText('Enviar Mensaje');
     fireEvent.click(submitButton);
 
-    expect(mockOpen).toHaveBeenCalledWith(expect.stringContaining('mailto:info@serenamente.com'));
+    expect(mockOpen).toHaveBeenCalledWith(
+      expect.stringContaining('mailto:contacto@serenamente.info')
+    );
   });
 
   test('WhatsApp button opens correct URL', () => {
