@@ -1,14 +1,14 @@
 import { Response } from 'express';
-import { prisma } from '../utils/database';
 import { AuthenticatedRequest } from '../middlewares/auth';
+import { prisma } from '../utils/database';
 import { hashPassword } from '../utils/password';
 
 export const getMe = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
-        error: 'No autenticado',
-        message: 'Debe estar autenticado para acceder a este recurso'
+        error: 'UNAUTHORIZED',
+        message: 'Debe estar autenticado para acceder a este recurso',
       });
       return;
     }
@@ -31,30 +31,30 @@ export const getMe = async (req: AuthenticatedRequest, res: Response): Promise<v
                 name: true,
                 date: true,
                 address: true,
-              }
-            }
-          }
-        }
-      }
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!user || !user.isActive) {
       res.status(404).json({
-        error: 'Usuario no encontrado',
-        message: 'El usuario no existe o ha sido desactivado'
+        error: 'USER_NOT_FOUND',
+        message: 'El usuario no existe o ha sido desactivado',
       });
       return;
     }
 
     res.json({
       message: 'Usuario obtenido exitosamente',
-      user
+      user,
     });
   } catch (error) {
     console.error('Error obteniendo usuario:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al obtener el usuario'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al obtener el usuario',
     });
   }
 };
@@ -63,8 +63,8 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response): Prom
   try {
     if (!req.user) {
       res.status(401).json({
-        error: 'No autenticado',
-        message: 'Debe estar autenticado para acceder a este recurso'
+        error: 'UNAUTHORIZED',
+        message: 'Debe estar autenticado para acceder a este recurso',
       });
       return;
     }
@@ -88,18 +88,18 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response): Prom
         phone: true,
         role: true,
         createdAt: true,
-      }
+      },
     });
 
     res.json({
       message: 'Usuario actualizado exitosamente',
-      user: updatedUser
+      user: updatedUser,
     });
   } catch (error) {
     console.error('Error actualizando usuario:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al actualizar el usuario'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al actualizar el usuario',
     });
   }
 };
@@ -108,25 +108,25 @@ export const deleteUser = async (req: AuthenticatedRequest, res: Response): Prom
   try {
     if (!req.user) {
       res.status(401).json({
-        error: 'No autenticado',
-        message: 'Debe estar autenticado para acceder a este recurso'
+        error: 'UNAUTHORIZED',
+        message: 'Debe estar autenticado para acceder a este recurso',
       });
       return;
     }
 
     await prisma.user.update({
       where: { id: req.user.userId },
-      data: { isActive: false }
+      data: { isActive: false },
     });
 
     res.json({
-      message: 'Usuario desactivado exitosamente'
+      message: 'Usuario desactivado exitosamente',
     });
   } catch (error) {
     console.error('Error desactivando usuario:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al desactivar el usuario'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al desactivar el usuario',
     });
   }
 };
@@ -145,24 +145,24 @@ export const getAllUsers = async (req: AuthenticatedRequest, res: Response): Pro
         createdAt: true,
         _count: {
           select: {
-            tickets: true
-          }
-        }
+            tickets: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     res.json({
       message: 'Usuarios obtenidos exitosamente',
-      users
+      users,
     });
   } catch (error) {
     console.error('Error obteniendo usuarios:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al obtener los usuarios'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al obtener los usuarios',
     });
   }
 };

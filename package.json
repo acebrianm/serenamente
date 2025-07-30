@@ -34,15 +34,17 @@
     "db:generate": "pnpm --filter backend db:generate",
     "db:push": "pnpm --filter backend db:push",
     "db:seed": "pnpm --filter backend db:seed",
-    "docker:up": "docker-compose -f apps/backend/docker-compose.yml up -d",
-    "docker:down": "docker-compose -f apps/backend/docker-compose.yml down",
-    "docker:logs": "docker-compose -f apps/backend/docker-compose.yml logs -f"
+    "docker:up": "docker compose -f apps/backend/docker-compose.yml up -d",
+    "docker:down": "docker compose -f apps/backend/docker-compose.yml down",
+    "docker:logs": "docker compose -f apps/backend/docker-compose.yml logs -f",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
+    "@biomejs/biome": "^2.1.2",
     "@types/node": "^20.10.5",
-    "typescript": "^5.3.3",
-    "@biomejs/biome": "^2.1.2"
+    "concurrently": "^8.2.2",
+    "husky": "^9.1.7",
+    "typescript": "^5.3.3"
   },
   "engines": {
     "node": ">=18.0.0",

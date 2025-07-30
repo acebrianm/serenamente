@@ -1,19 +1,17 @@
-import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-
-// Import utilities
-import { connectDatabase } from './utils/database';
+import express from 'express';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
-
 // Import routes
 import authRoutes from './routes/authRoutes';
-import userRoutes from './routes/userRoutes';
 import eventRoutes from './routes/eventRoutes';
-import ticketRoutes from './routes/ticketRoutes';
 import paymentRoutes from './routes/paymentRoutes';
+import ticketRoutes from './routes/ticketRoutes';
+import userRoutes from './routes/userRoutes';
+// Import utilities
+import { connectDatabase } from './utils/database';
 
 // Load environment variables
 dotenv.config();
@@ -38,10 +36,12 @@ app.use(helmet());
 app.use(limiter);
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+  })
+);
 
 // Body parsing middleware
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' })); // Stripe webhook needs raw body
@@ -73,7 +73,7 @@ const startServer = async () => {
   try {
     // Connect to database
     await connectDatabase();
-    
+
     // Start HTTP server
     app.listen(PORT, () => {
       console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
@@ -87,7 +87,7 @@ const startServer = async () => {
 };
 
 // Handle uncaught exceptions
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   console.error('❌ Uncaught Exception:', error);
   process.exit(1);
 });

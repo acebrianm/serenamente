@@ -1,11 +1,11 @@
+import { Event, Ticket, User } from '@prisma/client';
 import nodemailer, { Transporter } from 'nodemailer';
-import { User, Event, Ticket } from '@prisma/client';
 
 class EmailService {
   private transporter: Transporter;
 
   constructor() {
-    this.transporter = nodemailer.createTransporter({
+    this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT || '587'),
       secure: process.env.SMTP_PORT === '465',
@@ -117,11 +117,7 @@ class EmailService {
     await this.sendEmail(user.email, subject, html);
   }
 
-  async sendTicketConfirmationEmail(
-    user: User, 
-    event: Event, 
-    ticket: Ticket
-  ): Promise<void> {
+  async sendTicketConfirmationEmail(user: User, event: Event, ticket: Ticket): Promise<void> {
     const subject = `Confirmación de Ticket - ${event.name} 🎫`;
     const eventDate = new Date(event.date).toLocaleDateString('es-MX', {
       weekday: 'long',
@@ -156,7 +152,7 @@ class EmailService {
             <div class="content">
               <h2>Hola ${user.firstName},</h2>
               <p>¡Excelente! Tu compra ha sido procesada exitosamente. Aquí están los detalles de tu ticket:</p>
-              
+
               <div class="ticket-info">
                 <div class="detail">
                   <span class="label">Evento:</span> ${event.name}

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { prisma } from '../utils/database';
 import { AuthenticatedRequest } from '../middlewares/auth';
+import { prisma } from '../utils/database';
 
 export const getAllEvents = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -8,8 +8,8 @@ export const getAllEvents = async (req: Request, res: Response): Promise<void> =
       where: {
         isActive: true,
         date: {
-          gte: new Date() // Only future events
-        }
+          gte: new Date(), // Only future events
+        },
       },
       select: {
         id: true,
@@ -23,24 +23,24 @@ export const getAllEvents = async (req: Request, res: Response): Promise<void> =
         createdAt: true,
         _count: {
           select: {
-            tickets: true
-          }
-        }
+            tickets: true,
+          },
+        },
       },
       orderBy: {
-        date: 'asc'
-      }
+        date: 'asc',
+      },
     });
 
     res.json({
       message: 'Eventos obtenidos exitosamente',
-      events
+      events,
     });
   } catch (error) {
     console.error('Error obteniendo eventos:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al obtener los eventos'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al obtener los eventos',
     });
   }
 };
@@ -63,29 +63,29 @@ export const getEventById = async (req: Request, res: Response): Promise<void> =
         createdAt: true,
         _count: {
           select: {
-            tickets: true
-          }
-        }
-      }
+            tickets: true,
+          },
+        },
+      },
     });
 
     if (!event || !event.isActive) {
       res.status(404).json({
-        error: 'Evento no encontrado',
-        message: 'El evento solicitado no existe o no está disponible'
+        error: 'EVENT_NOT_FOUND',
+        message: 'El evento solicitado no existe o no está disponible',
       });
       return;
     }
 
     res.json({
       message: 'Evento obtenido exitosamente',
-      event
+      event,
     });
   } catch (error) {
     console.error('Error obteniendo evento:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al obtener el evento'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al obtener el evento',
     });
   }
 };
@@ -114,18 +114,18 @@ export const createEvent = async (req: AuthenticatedRequest, res: Response): Pro
         promoImages: true,
         date: true,
         createdAt: true,
-      }
+      },
     });
 
     res.status(201).json({
       message: 'Evento creado exitosamente',
-      event
+      event,
     });
   } catch (error) {
     console.error('Error creando evento:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al crear el evento'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al crear el evento',
     });
   }
 };
@@ -157,18 +157,18 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response): Pro
         promoImages: true,
         date: true,
         createdAt: true,
-      }
+      },
     });
 
     res.json({
       message: 'Evento actualizado exitosamente',
-      event
+      event,
     });
   } catch (error) {
     console.error('Error actualizando evento:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al actualizar el evento'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al actualizar el evento',
     });
   }
 };
@@ -179,22 +179,25 @@ export const deleteEvent = async (req: AuthenticatedRequest, res: Response): Pro
 
     await prisma.event.update({
       where: { id },
-      data: { isActive: false }
+      data: { isActive: false },
     });
 
     res.json({
-      message: 'Evento desactivado exitosamente'
+      message: 'Evento desactivado exitosamente',
     });
   } catch (error) {
     console.error('Error desactivando evento:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al desactivar el evento'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al desactivar el evento',
     });
   }
 };
 
-export const getAllEventsAdmin = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getAllEventsAdmin = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     const events = await prisma.event.findMany({
       select: {
@@ -210,24 +213,24 @@ export const getAllEventsAdmin = async (req: AuthenticatedRequest, res: Response
         createdAt: true,
         _count: {
           select: {
-            tickets: true
-          }
-        }
+            tickets: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     res.json({
       message: 'Eventos obtenidos exitosamente',
-      events
+      events,
     });
   } catch (error) {
     console.error('Error obteniendo eventos (admin):', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al obtener los eventos'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al obtener los eventos',
     });
   }
 };

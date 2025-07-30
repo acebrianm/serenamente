@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { 
-  getAllEvents, 
-  getEventById, 
-  createEvent, 
-  updateEvent, 
-  deleteEvent, 
-  getAllEventsAdmin 
+import {
+  createEvent,
+  deleteEvent,
+  getAllEvents,
+  getAllEventsAdmin,
+  getEventById,
+  updateEvent,
 } from '../controllers/eventController';
 import { authenticate, requireAdmin } from '../middlewares/auth';
 import { validateBody, validateParams } from '../middlewares/validation';
@@ -20,7 +20,14 @@ router.get('/:id', validateParams(uuidSchema), getEventById);
 // Admin routes
 router.post('/admin', authenticate, requireAdmin, validateBody(createEventSchema), createEvent);
 router.get('/admin/all', authenticate, requireAdmin, getAllEventsAdmin);
-router.put('/admin/:id', authenticate, requireAdmin, validateParams(uuidSchema), validateBody(updateEventSchema), updateEvent);
+router.put(
+  '/admin/:id',
+  authenticate,
+  requireAdmin,
+  validateParams(uuidSchema),
+  validateBody(updateEventSchema),
+  updateEvent
+);
 router.delete('/admin/:id', authenticate, requireAdmin, validateParams(uuidSchema), deleteEvent);
 
 export default router;

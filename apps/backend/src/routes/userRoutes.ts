@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getMe, updateUser, deleteUser, getAllUsers } from '../controllers/userController';
+import { deleteUser, getAllUsers, getMe, updateUser } from '../controllers/userController';
 import { authenticate, requireAdmin } from '../middlewares/auth';
 import { validateBody } from '../middlewares/validation';
 import { updateUserSchema } from '../utils/validation';

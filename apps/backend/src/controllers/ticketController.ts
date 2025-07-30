@@ -1,13 +1,13 @@
 import { Response } from 'express';
-import { prisma } from '../utils/database';
 import { AuthenticatedRequest } from '../middlewares/auth';
+import { prisma } from '../utils/database';
 
 export const getMyTickets = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
-        error: 'No autenticado',
-        message: 'Debe estar autenticado para acceder a este recurso'
+        error: 'UNAUTHORIZED',
+        message: 'Debe estar autenticado para acceder a este recurso',
       });
       return;
     }
@@ -15,7 +15,7 @@ export const getMyTickets = async (req: AuthenticatedRequest, res: Response): Pr
     const tickets = await prisma.ticket.findMany({
       where: {
         userId: req.user.userId,
-        isActive: true
+        isActive: true,
       },
       include: {
         event: {
@@ -27,23 +27,23 @@ export const getMyTickets = async (req: AuthenticatedRequest, res: Response): Pr
             price: true,
             date: true,
             promoImages: true,
-          }
-        }
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     res.json({
       message: 'Tickets obtenidos exitosamente',
-      tickets
+      tickets,
     });
   } catch (error) {
     console.error('Error obteniendo tickets del usuario:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al obtener los tickets'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al obtener los tickets',
     });
   }
 };
@@ -54,26 +54,26 @@ export const createTicket = async (req: AuthenticatedRequest, res: Response): Pr
 
     // Verify event exists and is active
     const event = await prisma.event.findUnique({
-      where: { id: eventId }
+      where: { id: eventId },
     });
 
     if (!event || !event.isActive) {
       res.status(404).json({
-        error: 'Evento no encontrado',
-        message: 'El evento no existe o no está disponible'
+        error: 'EVENT_NOT_FOUND',
+        message: 'El evento no existe o no está disponible',
       });
       return;
     }
 
     // Verify user exists (for admin creating tickets for other users)
     const user = await prisma.user.findUnique({
-      where: { id: userId }
+      where: { id: userId },
     });
 
     if (!user || !user.isActive) {
       res.status(404).json({
-        error: 'Usuario no encontrado',
-        message: 'El usuario no existe o no está activo'
+        error: 'USER_NOT_FOUND',
+        message: 'El usuario no existe o no está activo',
       });
       return;
     }
@@ -92,7 +92,7 @@ export const createTicket = async (req: AuthenticatedRequest, res: Response): Pr
             date: true,
             address: true,
             price: true,
-          }
+          },
         },
         user: {
           select: {
@@ -100,20 +100,20 @@ export const createTicket = async (req: AuthenticatedRequest, res: Response): Pr
             firstName: true,
             lastName: true,
             email: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     res.status(201).json({
       message: 'Ticket creado exitosamente',
-      ticket
+      ticket,
     });
   } catch (error) {
     console.error('Error creando ticket:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al crear el ticket'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al crear el ticket',
     });
   }
 };
@@ -129,7 +129,7 @@ export const getAllTickets = async (req: AuthenticatedRequest, res: Response): P
             date: true,
             address: true,
             price: true,
-          }
+          },
         },
         user: {
           select: {
@@ -137,23 +137,23 @@ export const getAllTickets = async (req: AuthenticatedRequest, res: Response): P
             firstName: true,
             lastName: true,
             email: true,
-          }
-        }
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     res.json({
       message: 'Tickets obtenidos exitosamente',
-      tickets
+      tickets,
     });
   } catch (error) {
     console.error('Error obteniendo todos los tickets:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al obtener los tickets'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al obtener los tickets',
     });
   }
 };
@@ -174,7 +174,7 @@ export const updateTicket = async (req: AuthenticatedRequest, res: Response): Pr
             date: true,
             address: true,
             price: true,
-          }
+          },
         },
         user: {
           select: {
@@ -182,20 +182,20 @@ export const updateTicket = async (req: AuthenticatedRequest, res: Response): Pr
             firstName: true,
             lastName: true,
             email: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     res.json({
       message: 'Ticket actualizado exitosamente',
-      ticket
+      ticket,
     });
   } catch (error) {
     console.error('Error actualizando ticket:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al actualizar el ticket'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al actualizar el ticket',
     });
   }
 };
@@ -206,17 +206,17 @@ export const deleteTicket = async (req: AuthenticatedRequest, res: Response): Pr
 
     await prisma.ticket.update({
       where: { id },
-      data: { isActive: false }
+      data: { isActive: false },
     });
 
     res.json({
-      message: 'Ticket desactivado exitosamente'
+      message: 'Ticket desactivado exitosamente',
     });
   } catch (error) {
     console.error('Error desactivando ticket:', error);
     res.status(500).json({
-      error: 'Error interno del servidor',
-      message: 'Ocurrió un error al desactivar el ticket'
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error al desactivar el ticket',
     });
   }
 };

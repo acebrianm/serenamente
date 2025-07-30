@@ -16,7 +16,7 @@ export const createPaymentIntent = async (data: CreatePaymentIntentData) => {
   try {
     // Get event details
     const event = await prisma.event.findUnique({
-      where: { id: data.eventId }
+      where: { id: data.eventId },
     });
 
     if (!event || !event.isActive) {
@@ -25,7 +25,7 @@ export const createPaymentIntent = async (data: CreatePaymentIntentData) => {
 
     // Get user details
     const user = await prisma.user.findUnique({
-      where: { id: data.userId }
+      where: { id: data.userId },
     });
 
     if (!user || !user.isActive) {
@@ -62,7 +62,7 @@ export const createPaymentIntent = async (data: CreatePaymentIntentData) => {
 export const confirmPayment = async (paymentIntentId: string) => {
   try {
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    
+
     if (paymentIntent.status === 'succeeded') {
       // Create ticket in database
       const ticket = await prisma.ticket.create({
@@ -77,26 +77,24 @@ export const confirmPayment = async (paymentIntentId: string) => {
               name: true,
               date: true,
               address: true,
-            }
+            },
           },
           user: {
             select: {
               firstName: true,
               lastName: true,
               email: true,
-            }
-          }
-        }
+            },
+          },
+        },
       });
 
       // Send ticket confirmation email (async, don't wait)
-      emailService.sendTicketConfirmationEmail(
-        ticket.user as any,
-        ticket.event as any,
-        ticket as any
-      ).catch(error => {
-        console.error('Error enviando email de confirmación:', error);
-      });
+      emailService
+        .sendTicketConfirmationEmail(ticket.user as any, ticket.event as any, ticket as any)
+        .catch(error => {
+          console.error('Error enviando email de confirmación:', error);
+        });
 
       return ticket;
     }
@@ -117,16 +115,18 @@ export const handleWebhook = async (body: any, signature: string) => {
     );
 
     switch (event.type) {
-      case 'payment_intent.succeeded':
+      case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         await confirmPayment(paymentIntent.id);
         console.log(`✅ Pago exitoso para ${paymentIntent.metadata.eventName}`);
         break;
+      }
 
-      case 'payment_intent.payment_failed':
+      case 'payment_intent.payment_failed': {
         const failedPayment = event.data.object as Stripe.PaymentIntent;
         console.log(`❌ Pago fallido para ${failedPayment.metadata.eventName}`);
         break;
+      }
 
       default:
         console.log(`⚠️ Evento no manejado: ${event.type}`);

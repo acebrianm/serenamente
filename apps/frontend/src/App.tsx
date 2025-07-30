@@ -1,29 +1,57 @@
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import About from './components/About';
-import Contact from './components/Contact';
-import Footer from './components/Footer';
-import Hero from './components/Hero';
-import Mission from './components/Mission';
-import Navbar from './components/Navbar';
-import Tickets from './components/Tickets';
-import theme from './theme/theme';
+import React from 'react';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import EventManagement from './components/admin/EventManagement';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import ResetPassword from './components/auth/ResetPassword';
+import Layout from './components/layout/Layout';
+import ProtectedRoute from './components/layout/ProtectedRoute';
+import PaymentSuccess from './components/payment/PaymentSuccess';
+import MyTickets from './components/user/MyTickets';
+import Profile from './components/user/Profile';
+import HomePage from './pages/HomePage';
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <div style={{ minHeight: '100vh' }}>
-        <Navbar />
-        <Hero />
-        <About />
-        <Mission />
-        <Tickets />
-        <Contact />
-        <Footer />
-      </div>
-    </ThemeProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<HomePage />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="reset-password" element={<ResetPassword />} />
+          <Route path="payment-success" element={<PaymentSuccess />} />
+
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="my-tickets"
+            element={
+              <ProtectedRoute>
+                <MyTickets />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="admin/events"
+            element={
+              <ProtectedRoute requireAdmin>
+                <EventManagement />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 
 export default App;
-// test comment

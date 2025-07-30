@@ -1,13 +1,13 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middlewares/auth';
-import { createPaymentIntent, confirmPayment, handleWebhook } from '../services/stripeService';
+import { confirmPayment, createPaymentIntent, handleWebhook } from '../services/stripeService';
 
 export const createPayment = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({
-        error: 'No autenticado',
-        message: 'Debe estar autenticado para realizar esta acción'
+        error: 'UNAUTHORIZED',
+        message: 'Debe estar autenticado para realizar esta acción',
       });
       return;
     }
@@ -16,8 +16,8 @@ export const createPayment = async (req: AuthenticatedRequest, res: Response): P
 
     if (!eventId || !nameOfAttendee) {
       res.status(400).json({
-        error: 'Datos requeridos',
-        message: 'El ID del evento y nombre del asistente son requeridos'
+        error: 'BAD_REQUEST',
+        message: 'El ID del evento y nombre del asistente son requeridos',
       });
       return;
     }
@@ -30,25 +30,28 @@ export const createPayment = async (req: AuthenticatedRequest, res: Response): P
 
     res.json({
       message: 'Intención de pago creada exitosamente',
-      payment: paymentData
+      payment: paymentData,
     });
   } catch (error: any) {
     console.error('Error creando pago:', error);
     res.status(500).json({
-      error: 'Error procesando pago',
-      message: error.message || 'Ocurrió un error al procesar el pago'
+      error: 'PAYMENT_ERROR',
+      message: error.message || 'Ocurrió un error al procesar el pago',
     });
   }
 };
 
-export const confirmPaymentIntent = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const confirmPaymentIntent = async (
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> => {
   try {
     const { paymentIntentId } = req.body;
 
     if (!paymentIntentId) {
       res.status(400).json({
-        error: 'ID de pago requerido',
-        message: 'El ID de intención de pago es requerido'
+        error: 'BAD_REQUEST',
+        message: 'El ID de intención de pago es requerido',
       });
       return;
     }
@@ -57,13 +60,13 @@ export const confirmPaymentIntent = async (req: AuthenticatedRequest, res: Respo
 
     res.json({
       message: 'Pago confirmado y ticket creado exitosamente',
-      ticket
+      ticket,
     });
   } catch (error: any) {
     console.error('Error confirmando pago:', error);
     res.status(500).json({
-      error: 'Error confirmando pago',
-      message: error.message || 'Ocurrió un error al confirmar el pago'
+      error: 'PAYMENT_ERROR',
+      message: error.message || 'Ocurrió un error al confirmar el pago',
     });
   }
 };
@@ -71,11 +74,11 @@ export const confirmPaymentIntent = async (req: AuthenticatedRequest, res: Respo
 export const webhookHandler = async (req: any, res: Response): Promise<void> => {
   try {
     const signature = req.headers['stripe-signature'];
-    
+
     if (!signature) {
       res.status(400).json({
-        error: 'Firma requerida',
-        message: 'La firma de Stripe es requerida'
+        error: 'BAD_REQUEST',
+        message: 'La firma de Stripe es requerida',
       });
       return;
     }
@@ -86,8 +89,8 @@ export const webhookHandler = async (req: any, res: Response): Promise<void> => 
   } catch (error: any) {
     console.error('Error en webhook:', error);
     res.status(400).json({
-      error: 'Error procesando webhook',
-      message: error.message || 'Error procesando el webhook de Stripe'
+      error: 'WEBHOOK_ERROR',
+      message: error.message || 'Error procesando el webhook de Stripe',
     });
   }
 };
