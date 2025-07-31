@@ -13,7 +13,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRegister } from '../../hooks/useApi';
@@ -22,6 +22,10 @@ const Register: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const registerMutation = useRegister();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const [formData, setFormData] = useState({
     firstName: '',

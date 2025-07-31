@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import { prisma } from '../utils/database';
 import { emailService } from './emailService';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env['STRIPE_SECRET_KEY']!, {
   apiVersion: '2023-10-16',
 });
 
@@ -67,9 +67,9 @@ export const confirmPayment = async (paymentIntentId: string) => {
       // Create ticket in database
       const ticket = await prisma.ticket.create({
         data: {
-          nameOfAttendee: paymentIntent.metadata.nameOfAttendee!,
-          eventId: paymentIntent.metadata.eventId!,
-          userId: paymentIntent.metadata.userId!,
+          nameOfAttendee: paymentIntent.metadata['nameOfAttendee']!,
+          eventId: paymentIntent.metadata['eventId']!,
+          userId: paymentIntent.metadata['userId']!,
         },
         include: {
           event: {
@@ -123,20 +123,20 @@ export const handleWebhook = async (body: any, signature: string) => {
     const event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env['STRIPE_WEBHOOK_SECRET']!
     );
 
     switch (event.type) {
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         await confirmPayment(paymentIntent.id);
-        console.log(`✅ Pago exitoso para ${paymentIntent.metadata.eventName}`);
+        console.log(`✅ Pago exitoso para ${paymentIntent.metadata['eventName']}`);
         break;
       }
 
       case 'payment_intent.payment_failed': {
         const failedPayment = event.data.object as Stripe.PaymentIntent;
-        console.log(`❌ Pago fallido para ${failedPayment.metadata.eventName}`);
+        console.log(`❌ Pago fallido para ${failedPayment.metadata['eventName']}`);
         break;
       }
 

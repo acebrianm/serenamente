@@ -1,5 +1,12 @@
-import cors from 'cors';
+// Load environment variables FIRST before any other imports
 import dotenv from 'dotenv';
+import path from 'path';
+
+const envPath = path.resolve(__dirname, '../.env');
+dotenv.config({ path: envPath });
+
+// Now import everything else
+import cors from 'cors';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
@@ -13,9 +20,6 @@ import ticketRoutes from './routes/ticketRoutes';
 import userRoutes from './routes/userRoutes';
 // Import utilities
 import { connectDatabase } from './utils/database';
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;

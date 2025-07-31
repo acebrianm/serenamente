@@ -11,7 +11,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUpdateUser, useUser } from '../../hooks/useApi';
@@ -21,6 +21,10 @@ const Profile: React.FC = () => {
   const { user } = useAuth();
   const { data: userData } = useUser();
   const updateUserMutation = useUpdateUser();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Use userData from query if available, fallback to auth context
   const currentUser = userData || user;
@@ -156,26 +160,6 @@ const Profile: React.FC = () => {
                     sx={styles.textField(theme)}
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    fullWidth
-                    label="Rol"
-                    value={user.role === 'ADMIN' ? 'Administrador' : 'Usuario'}
-                    disabled
-                    variant="outlined"
-                    sx={styles.textField(theme)}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    fullWidth
-                    label="Fecha de Registro"
-                    value={new Date(user.createdAt).toLocaleDateString('es-ES')}
-                    disabled
-                    variant="outlined"
-                    sx={styles.textField(theme)}
-                  />
-                </Grid>
               </Grid>
 
               {editing && (
@@ -206,7 +190,8 @@ const styles = {
   profileContainer: (theme: any) => ({
     minHeight: '100vh',
     backgroundColor: theme.palette.background.default,
-    py: 4,
+    pt: 12,
+    pb: 4,
   }),
   pageTitle: (theme: any) => ({
     textAlign: 'center',

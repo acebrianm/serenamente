@@ -27,7 +27,7 @@ const Contact: React.FC = () => {
   const [success, setSuccess] = useState(false);
 
   const contactInfo = {
-    email: 'contacto@serenamente.info ',
+    email: 'serenamente@gmail.com',
     whatsapp: '+52 55 8036 5253',
   };
 
@@ -45,26 +45,51 @@ const Contact: React.FC = () => {
     e.preventDefault();
     setSuccess(false);
 
-    sendMessageMutation.mutate(
-      {
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        message: formData.message.trim(),
+    // Client-side validation
+    const trimmedData = {
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      message: formData.message.trim(),
+    };
+
+    if (!trimmedData.name || trimmedData.name.length < 2) {
+      toast.error('El nombre debe tener al menos 2 caracteres');
+      return;
+    }
+
+    if (!trimmedData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedData.email)) {
+      toast.error('Por favor ingresa un email válido');
+      return;
+    }
+
+    if (!trimmedData.message || trimmedData.message.length < 10) {
+      toast.error('El mensaje debe tener al menos 10 caracteres');
+      return;
+    }
+
+    sendMessageMutation.mutate(trimmedData, {
+      onSuccess: () => {
+        setSuccess(true);
+        setFormData({ name: '', email: '', message: '' });
+        toast.success('¡Mensaje enviado exitosamente! Te contactaremos pronto.');
       },
-      {
-        onSuccess: () => {
-          setSuccess(true);
-          setFormData({ name: '', email: '', message: '' });
-          toast.success('¡Mensaje enviado exitosamente! Te contactaremos pronto.');
-        },
-        onError: (err: any) => {
+      onError: (err: any) => {
+        console.error('Contact form error:', err.response?.data);
+
+        // Handle validation errors with specific field messages
+        if (err.response?.data?.errors) {
+          const errors = err.response.data.errors;
+          errors.forEach((error: { field: string; message: string }) => {
+            toast.error(`${error.field}: ${error.message}`);
+          });
+        } else {
           const errorMessage =
             err.response?.data?.message ||
             'Error al enviar el mensaje. Por favor intenta de nuevo.';
           toast.error(errorMessage);
-        },
-      }
-    );
+        }
+      },
+    });
   };
 
   const handleWhatsApp = () => {
@@ -151,6 +176,7 @@ const Contact: React.FC = () => {
                   onChange={handleInputChange}
                   sx={styles.formField}
                   required
+                  helperText={`${formData.message.length}/1000 caracteres (mínimo 10)`}
                 />
 
                 <Button

@@ -2,24 +2,69 @@ import { Event, Ticket, User } from '@prisma/client';
 import nodemailer, { Transporter } from 'nodemailer';
 
 class EmailService {
-  private transporter: Transporter;
+  private transporter: Transporter | null = null;
+  private isConfigured: boolean = false;
+  private initialized: boolean = false;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_PORT === '465',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    // Don't initialize here - do it lazily when first used
+  }
+
+  private ensureInitialized() {
+    if (!this.initialized) {
+      this.initializeTransporter();
+      this.initialized = true;
+    }
+  }
+
+  private initializeTransporter() {
+    const requiredEnvVars = ['SMTP_HOST', 'SMTP_USER', 'SMTP_PASS', 'FROM_EMAIL'];
+    const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+    if (missingVars.length > 0) {
+      console.warn(
+        `⚠️  Email service disabled. Missing environment variables: ${missingVars.join(', ')}`
+      );
+      this.isConfigured = false;
+      return;
+    }
+
+    try {
+      console.log(
+        `📧 Initializing email service with host: ${process.env['SMTP_HOST']}:${process.env['SMTP_PORT']}`
+      );
+
+      this.transporter = nodemailer.createTransport({
+        host: process.env['SMTP_HOST'],
+        port: parseInt(process.env['SMTP_PORT'] || '587'),
+        secure: process.env['SMTP_PORT'] === '465',
+        auth: {
+          user: process.env['SMTP_USER'],
+          pass: process.env['SMTP_PASS'],
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+
+      this.isConfigured = true;
+    } catch (error) {
+      console.error('❌ Failed to initialize email transporter:', error);
+      this.isConfigured = false;
+    }
   }
 
   private async sendEmail(to: string, subject: string, html: string): Promise<void> {
+    this.ensureInitialized();
+
+    if (!this.isConfigured || !this.transporter) {
+      console.warn(`⚠️  Email service not configured. Skipping email to ${to}: ${subject}`);
+      return;
+    }
+
     try {
       await this.transporter.sendMail({
-        from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
+        from: `${process.env['FROM_NAME']} <${process.env['FROM_EMAIL']}>`,
         to,
         subject,
         html,
@@ -27,7 +72,8 @@ class EmailService {
       console.log(`✅ Email enviado a ${to}: ${subject}`);
     } catch (error) {
       console.error(`❌ Error enviando email a ${to}:`, error);
-      throw error;
+      console.warn('📧 Email service error - continuing without sending email');
+      // Don't throw error to prevent breaking the main flow
     }
   }
 
@@ -65,18 +111,23 @@ class EmailService {
             </div>
             <div class="footer">
               <p>Equipo de Serenamente<br>
-              <a href="mailto:${process.env.FROM_EMAIL}">${process.env.FROM_EMAIL}</a></p>
+              <a href="mailto:${process.env['FROM_EMAIL']}">${process.env['FROM_EMAIL']}</a></p>
             </div>
           </div>
         </body>
       </html>
     `;
 
-    await this.sendEmail(user.email, subject, html);
+    try {
+      await this.sendEmail(user.email, subject, html);
+    } catch (error) {
+      console.error('Error enviando email de bienvenida:', error);
+      // Don't rethrow - continue with user registration
+    }
   }
 
   async sendPasswordResetEmail(user: User, resetToken: string): Promise<void> {
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+    const resetUrl = `${process.env['FRONTEND_URL']}/reset-password?token=${resetToken}`;
     const subject = 'Recuperación de contraseña - Serenamente';
     const html = `
       <!DOCTYPE html>
@@ -107,7 +158,7 @@ class EmailService {
             </div>
             <div class="footer">
               <p>Equipo de Serenamente<br>
-              <a href="mailto:${process.env.FROM_EMAIL}">${process.env.FROM_EMAIL}</a></p>
+              <a href="mailto:${process.env['FROM_EMAIL']}">${process.env['FROM_EMAIL']}</a></p>
             </div>
           </div>
         </body>
@@ -186,14 +237,19 @@ class EmailService {
             </div>
             <div class="footer">
               <p>Equipo de Serenamente<br>
-              <a href="mailto:${process.env.FROM_EMAIL}">${process.env.FROM_EMAIL}</a></p>
+              <a href="mailto:${process.env['FROM_EMAIL']}">${process.env['FROM_EMAIL']}</a></p>
             </div>
           </div>
         </body>
       </html>
     `;
 
-    await this.sendEmail(user.email, subject, html);
+    try {
+      await this.sendEmail(user.email, subject, html);
+    } catch (error) {
+      console.error('Error enviando email de confirmación de ticket:', error);
+      // Don't rethrow - continue with ticket creation
+    }
   }
 
   async sendContactEmail(contactData: {
@@ -263,9 +319,10 @@ class EmailService {
     `;
 
     // Send to our admin email (SMTP_USER)
-    const adminEmail = process.env.SMTP_USER;
+    const adminEmail = process.env['SMTP_USER'];
     if (!adminEmail) {
-      throw new Error('SMTP_USER no está configurado');
+      console.warn('SMTP_USER no está configurado - no se puede enviar email de contacto');
+      return;
     }
 
     await this.sendEmail(adminEmail, subject, html);

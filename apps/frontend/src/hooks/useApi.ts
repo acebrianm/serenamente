@@ -24,11 +24,36 @@ export const queryKeys = {
   users: ['users'] as const,
 };
 
+// Mutation Keys
+export const mutationKeys = {
+  // Auth
+  login: ['auth', 'login'] as const,
+  register: ['auth', 'register'] as const,
+  resetPassword: ['auth', 'resetPassword'] as const,
+  // User
+  updateUser: ['user', 'update'] as const,
+  deleteUser: ['user', 'delete'] as const,
+  // Events
+  createEvent: ['events', 'create'] as const,
+  updateEvent: ['events', 'update'] as const,
+  deleteEvent: ['events', 'delete'] as const,
+  // Tickets
+  createTicket: ['tickets', 'create'] as const,
+  updateTicket: ['tickets', 'update'] as const,
+  deleteTicket: ['tickets', 'delete'] as const,
+  // Payments
+  createPaymentIntent: ['payments', 'createIntent'] as const,
+  confirmPayment: ['payments', 'confirm'] as const,
+  // Contact
+  sendMessage: ['contact', 'sendMessage'] as const,
+};
+
 // Auth Hooks
 export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: mutationKeys.login,
     mutationFn: authService.login,
     onSuccess: data => {
       // Cache user data
@@ -44,6 +69,7 @@ export const useRegister = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: mutationKeys.register,
     mutationFn: authService.register,
     onSuccess: data => {
       // Cache user data
@@ -57,6 +83,7 @@ export const useRegister = () => {
 
 export const useResetPassword = () => {
   return useMutation({
+    mutationKey: mutationKeys.resetPassword,
     mutationFn: authService.resetPassword,
   });
 };
@@ -75,6 +102,7 @@ export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: mutationKeys.updateUser,
     mutationFn: userService.updateUser,
     onSuccess: data => {
       // Update cached user data
@@ -89,6 +117,7 @@ export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: mutationKeys.deleteUser,
     mutationFn: userService.deleteUser,
     onSuccess: () => {
       // Clear all cached data
@@ -138,6 +167,7 @@ export const useCreateEvent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: mutationKeys.createEvent,
     mutationFn: eventService.createEvent,
     onSuccess: data => {
       // Invalidate events queries
@@ -153,6 +183,7 @@ export const useUpdateEvent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: mutationKeys.updateEvent,
     mutationFn: ({ id, data }: { id: string; data: any }) => eventService.updateEvent(id, data),
     onSuccess: response => {
       // Update specific event in cache
@@ -168,6 +199,7 @@ export const useDeleteEvent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: mutationKeys.deleteEvent,
     mutationFn: eventService.deleteEvent,
     onSuccess: () => {
       // Invalidate events queries
@@ -199,6 +231,7 @@ export const useCreateTicket = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: mutationKeys.createTicket,
     mutationFn: ticketService.createTicket,
     onSuccess: _data => {
       // Invalidate tickets queries
@@ -212,6 +245,7 @@ export const useUpdateTicket = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: mutationKeys.updateTicket,
     mutationFn: ({ id, data }: { id: string; data: any }) => ticketService.updateTicket(id, data),
     onSuccess: _response => {
       // Invalidate tickets queries
@@ -225,6 +259,7 @@ export const useDeleteTicket = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: mutationKeys.deleteTicket,
     mutationFn: ticketService.deleteTicket,
     onSuccess: () => {
       // Invalidate tickets queries
@@ -237,6 +272,7 @@ export const useDeleteTicket = () => {
 // Payment Hooks
 export const useCreatePaymentIntent = () => {
   return useMutation({
+    mutationKey: mutationKeys.createPaymentIntent,
     mutationFn: paymentService.createPaymentIntent,
   });
 };
@@ -245,6 +281,7 @@ export const useConfirmPayment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: mutationKeys.confirmPayment,
     mutationFn: paymentService.confirmPayment,
     onSuccess: () => {
       // Invalidate tickets to show new ticket
@@ -256,12 +293,14 @@ export const useConfirmPayment = () => {
 // Contact Hook
 export const useSendMessage = () => {
   return useMutation({
+    mutationKey: mutationKeys.sendMessage,
     mutationFn: contactService.sendMessage,
   });
 };
 
 export const useContactMessage = () => {
   return useMutation({
+    mutationKey: mutationKeys.sendMessage,
     mutationFn: contactService.sendMessage,
   });
 };

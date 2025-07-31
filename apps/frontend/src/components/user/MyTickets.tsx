@@ -15,12 +15,16 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useUserTickets } from '../../hooks/useApi';
 
 const MyTickets: React.FC = () => {
   const theme = useTheme();
   const { data: tickets = [], isLoading: loading, error } = useUserTickets();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   if (loading) {
     return (
@@ -130,11 +134,13 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.palette.background.default,
+    pt: 12,
   }),
   ticketsContainer: (theme: any) => ({
     minHeight: '100vh',
     backgroundColor: theme.palette.background.default,
-    py: 4,
+    pt: 12,
+    pb: 4,
   }),
   pageTitle: (theme: any) => ({
     textAlign: 'center',

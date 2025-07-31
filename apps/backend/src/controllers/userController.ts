@@ -21,9 +21,7 @@ export const getMe = async (req: AuthenticatedRequest, res: Response): Promise<v
         lastName: true,
         email: true,
         phone: true,
-        role: true,
         isActive: true,
-        createdAt: true,
         tickets: {
           include: {
             event: {
@@ -87,8 +85,6 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response): Prom
         lastName: true,
         email: true,
         phone: true,
-        role: true,
-        createdAt: true,
       },
     });
 
