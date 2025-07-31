@@ -10,9 +10,9 @@ const HomePage: React.FC = () => {
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Event',
-    name: 'Serenamente - Conferencia de Bienestar Mental',
+    name: 'Serenamente - Experiencia de Bienestar Mental',
     description:
-      'Conferencia líder en bienestar mental y transformación personal. Descubre herramientas prácticas para una vida más plena y equilibrada.',
+      'Experiencia líder en bienestar mental y transformación personal. Descubre herramientas prácticas para una vida más plena y equilibrada.',
     startDate: '2025-03-15T09:00:00-06:00',
     endDate: '2025-03-15T18:00:00-06:00',
     eventStatus: 'https://schema.org/EventScheduled',
@@ -30,11 +30,11 @@ const HomePage: React.FC = () => {
     organizer: {
       '@type': 'Organization',
       name: 'Serenamente',
-      url: 'https://serenamente.info',
+      url: 'https://serenamentemexico.com',
     },
     offers: {
       '@type': 'Offer',
-      url: 'https://serenamente.info',
+      url: 'https://serenamentemexico.com',
       price: '299',
       priceCurrency: 'MXN',
       availability: 'https://schema.org/InStock',
@@ -45,10 +45,10 @@ const HomePage: React.FC = () => {
   return (
     <>
       <SEOHelmet
-        title="Serenamente - Conferencia de Bienestar Mental y Transformación Personal"
-        description="Únete a Serenamente, la conferencia líder en bienestar mental y transformación personal. Descubre herramientas prácticas para una vida más plena y equilibrada con expertos reconocidos."
-        keywords="serenamente, conferencia bienestar mental, salud mental, transformación personal, mindfulness, psicología, wellness, México, evento presencial"
-        url="https://serenamente.info"
+        title="Serenamente - Experiencia de Bienestar Mental y Transformación Personal"
+        description="Únete a Serenamente, la experiencia líder en bienestar mental y transformación personal. Descubre herramientas prácticas para una vida más plena y equilibrada con expertos reconocidos."
+        keywords="serenamente, conferencia bienestar mental, taller salud mental, salud mental, transformación personal, mindfulness, psicología, wellness, México, evento presencial"
+        url="https://serenamentemexico.com"
         type="website"
         structuredData={structuredData}
       />

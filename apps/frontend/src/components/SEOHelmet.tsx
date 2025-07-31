@@ -13,11 +13,11 @@ interface SEOHelmetProps {
 }
 
 const SEOHelmet: React.FC<SEOHelmetProps> = ({
-  title = 'Serenamente - Conferencia de Bienestar Mental y Transformación Personal',
-  description = 'Únete a Serenamente, la conferencia líder en bienestar mental y transformación personal. Descubre herramientas prácticas para una vida más plena y equilibrada.',
-  keywords = 'bienestar mental, salud mental, conferencia, transformación personal, mindfulness, psicología, wellness, México',
-  image = 'https://serenamente.info/og-image.jpg',
-  url = 'https://serenamente.info',
+  title = 'Serenamente - Experiencia de Bienestar Mental y Transformación Personal',
+  description = 'Únete a Serenamente, la experiencia líder en bienestar mental y transformación personal. Descubre herramientas prácticas para una vida más plena y equilibrada.',
+  keywords = 'bienestar mental, salud mental, experiencia, transformación personal, mindfulness, psicología, wellness, México',
+  image = 'https://serenamentemexico.com/og-image.jpg',
+  url = 'https://serenamentemexico.com',
   type = 'website',
   noIndex = false,
   structuredData,

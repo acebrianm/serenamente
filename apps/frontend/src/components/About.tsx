@@ -36,9 +36,9 @@ const About: React.FC = () => {
 
         <Box sx={styles.descriptionContainer}>
           <Typography variant="h6" sx={styles.descriptionText}>
-            Serenamente es más que una conferencia; es un viaje transformador hacia el bienestar
-            mental y emocional. Durante dos días intensivos, exploraremos las últimas
-            investigaciones en psicología positiva, mindfulness y desarrollo personal.
+            Serenamente es una experiencia; es un viaje transformador hacia el bienestar mental y
+            emocional. Durante dos días intensivos, exploraremos las últimas investigaciones en
+            psicología positiva, mindfulness y desarrollo personal.
           </Typography>
 
           <Typography variant="h6" sx={styles.descriptionText}>

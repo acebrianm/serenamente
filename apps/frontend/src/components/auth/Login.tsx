@@ -55,9 +55,9 @@ const Login: React.FC = () => {
     <>
       <SEOHelmet
         title="Iniciar Sesión - Serenamente"
-        description="Inicia sesión en tu cuenta de Serenamente para acceder a tus tickets y gestionar tu perfil. Únete a la conferencia de bienestar mental más importante."
+        description="Inicia sesión en tu cuenta de Serenamente para acceder a tus tickets y gestionar tu perfil. Únete a la experiencia de bienestar mental más importante."
         keywords="login, iniciar sesión, serenamente, cuenta, perfil, tickets"
-        url="https://serenamente.info/login"
+        url="https://serenamentemexico.com/login"
         noIndex={true}
       />
       <Box sx={styles.loginContainer(theme)}>

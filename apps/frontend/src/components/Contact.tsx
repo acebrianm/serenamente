@@ -27,12 +27,12 @@ const Contact: React.FC = () => {
   const [success, setSuccess] = useState(false);
 
   const contactInfo = {
-    email: 'serenamente@gmail.com',
-    whatsapp: '+52 55 8036 5253',
+    email: 'mentesanasiempree@gmail.com',
+    whatsapp: '+52 55 3223 9408',
   };
 
-  const whatsappMessage = 'Hola, me interesa la conferencia Serenamente';
-  const emailSubject = 'Consulta sobre Conferencia Serenamente';
+  const whatsappMessage = 'Hola, me interesa un evento de Serenamente';
+  const emailSubject = 'Consulta sobre eventos de Serenamente';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({

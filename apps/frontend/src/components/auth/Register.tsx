@@ -75,9 +75,9 @@ const Register: React.FC = () => {
     <>
       <SEOHelmet
         title="Registrarse - Serenamente"
-        description="Crea tu cuenta en Serenamente y asegura tu lugar en la conferencia de bienestar mental más importante. Regístrate ahora y transforma tu vida."
-        keywords="registro, crear cuenta, serenamente, conferencia, bienestar mental, tickets"
-        url="https://serenamente.info/register"
+        description="Crea tu cuenta en Serenamente y asegura tu lugar en la conferencia o taller de bienestar mental más importante. Regístrate ahora y transforma tu vida."
+        keywords="registro, crear cuenta, serenamente, conferencia, taller, bienestar mental, tickets"
+        url="https://serenamentemexico.com/register"
       />
       <Box sx={styles.registerContainer(theme)}>
         <Container maxWidth="sm">

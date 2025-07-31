@@ -16,7 +16,7 @@ Disallow: /payment-success
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://serenamente.info/sitemap.xml
+Sitemap: https://serenamentemexico.com/sitemap.xml
 
 # Crawl delay (optional)
 Crawl-delay: 1

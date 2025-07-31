@@ -6,7 +6,7 @@ describe('App Component', () => {
     render(<App />);
 
     expect(screen.getAllByText('Serenamente')).toHaveLength(2); // Navbar and Footer
-    expect(screen.getByText('Conferencia Serenamente')).toBeInTheDocument();
+    expect(screen.getByText('Serenamente')).toBeInTheDocument();
   });
 
   test('renders all main sections', () => {

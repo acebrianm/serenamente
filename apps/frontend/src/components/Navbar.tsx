@@ -114,7 +114,7 @@ const Navbar: React.FC = () => {
           <Box
             component="img"
             src="/logo192.png"
-            alt="Serenamente - Conferencia de Bienestar Mental"
+            alt="Serenamente - Experiencia de Bienestar Mental"
             title="Ir a inicio"
             loading="eager"
             sx={styles.logo}

@@ -32,8 +32,8 @@ const Hero: React.FC = () => {
                 loop
                 playsInline
                 poster="/videos/hero-poster.jpg"
-                aria-label="Video promocional de la Conferencia Serenamente mostrando ambiente de bienestar y transformación personal"
-                title="Video promocional - Conferencia Serenamente"
+                aria-label="Video promocional de Serenamente mostrando ambiente de bienestar y transformación personal"
+                title="Video promocional - Serenamente"
               >
                 <source src="/videos/hero-video.mp4" type="video/mp4" />
                 <source src="/videos/hero-video.webm" type="video/webm" />
@@ -48,7 +48,7 @@ const Hero: React.FC = () => {
               {/* Text content - hidden on mobile */}
               <Box sx={styles.heroTextContent}>
                 <Typography variant="h1" component="h1" sx={styles.mainTitle(theme)}>
-                  Conferencia Serenamente
+                  Serenamente
                 </Typography>
 
                 <Typography variant="h4" component="h2" sx={styles.subtitle(theme)}>

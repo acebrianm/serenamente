@@ -26,7 +26,7 @@ const renderWithTheme = (component: React.ReactElement) => {
 describe('Hero Component', () => {
   test('renders main title', () => {
     renderWithTheme(<Hero />);
-    expect(screen.getByText('Conferencia Serenamente')).toBeInTheDocument();
+    expect(screen.getByText('Serenamente')).toBeInTheDocument();
   });
 
   test('renders subtitle', () => {
@@ -63,9 +63,7 @@ describe('Hero Component', () => {
 
   test('has hero section id for navigation', () => {
     renderWithTheme(<Hero />);
-    const heroSection = screen
-      .getByRole('heading', { name: 'Conferencia Serenamente' })
-      .closest('#hero');
+    const heroSection = screen.getByRole('heading', { name: 'Serenamente' }).closest('#hero');
     expect(heroSection).toBeInTheDocument();
   });
 
@@ -95,7 +93,7 @@ describe('Hero Component', () => {
   test('has proper grid structure for split layout', () => {
     renderWithTheme(<Hero />);
     const grids = screen
-      .getByRole('heading', { name: 'Conferencia Serenamente' })
+      .getByRole('heading', { name: 'Serenamente' })
       .closest('[class*="MuiContainer-root"]')
       ?.querySelector('[class*="MuiGrid-container"]');
 
@@ -106,7 +104,7 @@ describe('Hero Component', () => {
   test('video section comes before content section in DOM order', () => {
     renderWithTheme(<Hero />);
     const video = document.querySelector('video');
-    const title = screen.getByText('Conferencia Serenamente');
+    const title = screen.getByText('Serenamente');
 
     // Video should come before title in DOM order
     const videoPosition = video?.compareDocumentPosition(title);
@@ -122,14 +120,12 @@ describe('Hero Component', () => {
     renderWithTheme(<Hero />);
 
     // Check that hero container exists
-    const heroContainer = screen
-      .getByRole('heading', { name: 'Conferencia Serenamente' })
-      .closest('#hero');
+    const heroContainer = screen.getByRole('heading', { name: 'Serenamente' }).closest('#hero');
     expect(heroContainer).toBeInTheDocument();
 
     // Check that both video and content sections exist
     const video = document.querySelector('video');
-    const title = screen.getByText('Conferencia Serenamente');
+    const title = screen.getByText('Serenamente');
     expect(video).toBeInTheDocument();
     expect(title).toBeInTheDocument();
   });

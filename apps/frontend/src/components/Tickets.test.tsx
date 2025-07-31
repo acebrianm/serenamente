@@ -77,7 +77,9 @@ describe('Tickets Component', () => {
   test('renders ticket features', () => {
     renderWithTheme(<Tickets />);
 
-    expect(screen.getByText('Acceso completo a todas las conferencias')).toBeInTheDocument();
+    expect(
+      screen.getByText('Acceso completo a todas las conferencias y talleres')
+    ).toBeInTheDocument();
     expect(screen.getByText('Sesión exclusiva con los ponentes')).toBeInTheDocument();
     expect(screen.getByText('Networking exclusivo')).toBeInTheDocument();
   });
