@@ -15,45 +15,39 @@ import {
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useLogin } from '../../hooks/useApi';
 
 const Login: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const loginMutation = useLogin();
 
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
 
-    try {
-      await login(formData.email, formData.password);
-      toast.success('¡Bienvenido de vuelta!');
-      navigate('/');
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Error al iniciar sesión';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+    loginMutation.mutate(formData, {
+      onSuccess: () => {
+        toast.success('¡Bienvenido de vuelta!');
+        navigate('/');
+      },
+      onError: (err: any) => {
+        const errorMessage = err.response?.data?.message || 'Error al iniciar sesión';
+        toast.error(errorMessage);
+      },
+    });
   };
 
   return (
@@ -69,9 +63,9 @@ const Login: React.FC = () => {
               Accede a tu cuenta para gestionar tus entradas
             </Typography>
 
-            {error && (
+            {loginMutation.error && (
               <Alert severity="error" sx={styles.errorAlert}>
-                {error}
+                {(loginMutation.error as any)?.response?.data?.message || 'Error al iniciar sesión'}
               </Alert>
             )}
 
@@ -114,10 +108,10 @@ const Login: React.FC = () => {
                 fullWidth
                 variant="contained"
                 size="large"
-                disabled={loading}
+                disabled={loginMutation.isPending}
                 sx={styles.submitButton(theme)}
               >
-                {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                {loginMutation.isPending ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </Button>
             </Box>
 

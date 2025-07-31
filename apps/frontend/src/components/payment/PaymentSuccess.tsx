@@ -3,12 +3,12 @@ import { Box, Button, Card, CardContent, Container, Typography, useTheme } from 
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useSearchParams } from 'react-router-dom';
-import { paymentService } from '../../services/api';
+import { useConfirmPayment } from '../../hooks/useApi';
 
 const PaymentSuccess: React.FC = () => {
   const theme = useTheme();
   const [searchParams] = useSearchParams();
-  const [processing, setProcessing] = useState(true);
+  const confirmPaymentMutation = useConfirmPayment();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
@@ -17,37 +17,34 @@ const PaymentSuccess: React.FC = () => {
   const paymentIntentId = searchParams.get('payment_intent');
 
   useEffect(() => {
-    const confirmPayment = async () => {
-      if (!eventId || !nameOfAttendee || !paymentIntentId) {
-        setError('Información de pago incompleta');
-        setProcessing(false);
-        return;
+    if (!eventId || !nameOfAttendee || !paymentIntentId) {
+      setError('Información de pago incompleta');
+      return;
+    }
+
+    confirmPaymentMutation.mutate(
+      {
+        paymentIntentId,
+        eventId,
+        nameOfAttendee,
+      },
+      {
+        onSuccess: result => {
+          if (result.success) {
+            setSuccess(true);
+            toast.success('¡Pago confirmado exitosamente! Tu entrada ha sido reservada.');
+          } else {
+            setError('Error al confirmar el pago');
+          }
+        },
+        onError: (err: any) => {
+          setError(err.response?.data?.message || 'Error al procesar la confirmación');
+        },
       }
+    );
+  }, [eventId, nameOfAttendee, paymentIntentId, confirmPaymentMutation]);
 
-      try {
-        const result = await paymentService.confirmPayment({
-          paymentIntentId,
-          eventId,
-          nameOfAttendee,
-        });
-
-        if (result.success) {
-          setSuccess(true);
-          toast.success('¡Pago confirmado exitosamente! Tu entrada ha sido reservada.');
-        } else {
-          setError('Error al confirmar el pago');
-        }
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Error al procesar la confirmación');
-      } finally {
-        setProcessing(false);
-      }
-    };
-
-    confirmPayment();
-  }, [eventId, nameOfAttendee, paymentIntentId]);
-
-  if (processing) {
+  if (confirmPaymentMutation.isPending) {
     return (
       <Box sx={styles.successContainer(theme, 'processing')}>
         <Container maxWidth="sm">
@@ -66,7 +63,7 @@ const PaymentSuccess: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (!success && (error || confirmPaymentMutation.error)) {
     return (
       <Box sx={styles.successContainer(theme, 'error')}>
         <Container maxWidth="sm">
@@ -76,7 +73,9 @@ const PaymentSuccess: React.FC = () => {
                 Error en el Pago
               </Typography>
               <Typography variant="body1" sx={styles.errorText(theme)}>
-                {error}
+                {error ||
+                  (confirmPaymentMutation.error as any)?.response?.data?.message ||
+                  'Error al procesar la confirmación'}
               </Typography>
               <Button
                 component={Link}

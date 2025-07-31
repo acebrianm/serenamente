@@ -14,59 +14,60 @@ import {
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
-import { userService } from '../../services/api';
+import { useUpdateUser, useUser } from '../../hooks/useApi';
 
 const Profile: React.FC = () => {
   const theme = useTheme();
   const { user } = useAuth();
+  const { data: userData } = useUser();
+  const updateUserMutation = useUpdateUser();
+
+  // Use userData from query if available, fallback to auth context
+  const currentUser = userData || user;
 
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
-    phone: user?.phone || '',
+    firstName: currentUser?.firstName || '',
+    lastName: currentUser?.lastName || '',
+    phone: currentUser?.phone || '',
   });
   const [editing, setEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
 
-    try {
-      await userService.updateUser({
+    updateUserMutation.mutate(
+      {
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: formData.phone || undefined,
-      });
-      toast.success('¡Perfil actualizado correctamente!');
-      setEditing(false);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Error al actualizar el perfil';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+      },
+      {
+        onSuccess: () => {
+          toast.success('¡Perfil actualizado correctamente!');
+          setEditing(false);
+        },
+        onError: (err: any) => {
+          const errorMessage = err.response?.data?.message || 'Error al actualizar el perfil';
+          toast.error(errorMessage);
+        },
+      }
+    );
   };
 
   const handleCancel = () => {
     setFormData({
-      firstName: user?.firstName || '',
-      lastName: user?.lastName || '',
-      phone: user?.phone || '',
+      firstName: currentUser?.firstName || '',
+      lastName: currentUser?.lastName || '',
+      phone: currentUser?.phone || '',
     });
     setEditing(false);
-    setError('');
   };
 
   if (!user) {
@@ -99,9 +100,10 @@ const Profile: React.FC = () => {
               )}
             </Box>
 
-            {error && (
+            {updateUserMutation.error && (
               <Alert severity="error" sx={styles.alert}>
-                {error}
+                {(updateUserMutation.error as any)?.response?.data?.message ||
+                  'Error al actualizar el perfil'}
               </Alert>
             )}
 
@@ -135,7 +137,7 @@ const Profile: React.FC = () => {
                   <TextField
                     fullWidth
                     label="Correo Electrónico"
-                    value={user.email}
+                    value={currentUser?.email || ''}
                     disabled
                     variant="outlined"
                     sx={styles.textField(theme)}
@@ -185,10 +187,10 @@ const Profile: React.FC = () => {
                     type="submit"
                     variant="contained"
                     startIcon={<Save />}
-                    disabled={loading}
+                    disabled={updateUserMutation.isPending}
                     sx={styles.saveButton(theme)}
                   >
-                    {loading ? 'Guardando...' : 'Guardar Cambios'}
+                    {updateUserMutation.isPending ? 'Guardando...' : 'Guardar Cambios'}
                   </Button>
                 </Box>
               )}

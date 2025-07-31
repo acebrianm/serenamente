@@ -22,6 +22,7 @@ export const getMe = async (req: AuthenticatedRequest, res: Response): Promise<v
         email: true,
         phone: true,
         role: true,
+        isActive: true,
         createdAt: true,
         tickets: {
           include: {
@@ -131,7 +132,7 @@ export const deleteUser = async (req: AuthenticatedRequest, res: Response): Prom
   }
 };
 
-export const getAllUsers = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getAllUsers = async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const users = await prisma.user.findMany({
       select: {

@@ -15,29 +15,12 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { Ticket, ticketService } from '../../services/api';
+import React from 'react';
+import { useUserTickets } from '../../hooks/useApi';
 
 const MyTickets: React.FC = () => {
   const theme = useTheme();
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        const data = await ticketService.getMyTickets();
-        setTickets(data);
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Error al cargar las entradas');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTickets();
-  }, []);
+  const { data: tickets = [], isLoading: loading, error } = useUserTickets();
 
   if (loading) {
     return (
@@ -56,7 +39,7 @@ const MyTickets: React.FC = () => {
 
         {error && (
           <Alert severity="error" sx={styles.errorAlert}>
-            {error}
+            {(error as any)?.response?.data?.message || 'Error al cargar las entradas'}
           </Alert>
         )}
 

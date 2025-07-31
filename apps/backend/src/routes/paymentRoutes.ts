@@ -8,7 +8,7 @@ import { authenticate } from '../middlewares/auth';
 import { validateBody } from '../middlewares/validation';
 import { confirmPaymentSchema, createPaymentSchema } from '../utils/validation';
 
-const router = Router();
+const router: Router = Router();
 
 // Payment routes
 router.post(

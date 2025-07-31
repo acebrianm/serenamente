@@ -11,7 +11,7 @@ import { authenticate, requireAdmin } from '../middlewares/auth';
 import { validateBody, validateParams } from '../middlewares/validation';
 import { createEventSchema, updateEventSchema, uuidSchema } from '../utils/validation';
 
-const router = Router();
+const router: Router = Router();
 
 // Public routes
 router.get('/', getAllEvents);

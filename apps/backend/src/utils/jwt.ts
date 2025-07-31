@@ -1,5 +1,5 @@
 import { User } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 
 export interface JWTPayload {
   userId: string;
@@ -14,11 +14,21 @@ export const generateToken = (user: User): string => {
     role: user.role,
   };
 
-  return jwt.sign(payload, process.env.JWT_SECRET!, {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET no está configurado');
+  }
+
+  return jwt.sign(payload, secret, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  });
+  } as SignOptions);
 };
 
 export const verifyToken = (token: string): JWTPayload => {
-  return jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET no está configurado');
+  }
+
+  return jwt.verify(token, secret) as JWTPayload;
 };

@@ -3,7 +3,7 @@ import { prisma } from '../utils/database';
 import { emailService } from './emailService';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2023-10-16',
 });
 
 export interface CreatePaymentIntentData {
@@ -67,23 +67,35 @@ export const confirmPayment = async (paymentIntentId: string) => {
       // Create ticket in database
       const ticket = await prisma.ticket.create({
         data: {
-          nameOfAttendee: paymentIntent.metadata.nameOfAttendee,
-          eventId: paymentIntent.metadata.eventId,
-          userId: paymentIntent.metadata.userId,
+          nameOfAttendee: paymentIntent.metadata.nameOfAttendee!,
+          eventId: paymentIntent.metadata.eventId!,
+          userId: paymentIntent.metadata.userId!,
         },
         include: {
           event: {
             select: {
+              id: true,
               name: true,
-              date: true,
+              description: true,
               address: true,
+              price: true,
+              date: true,
+              promoVideo: true,
+              promoImages: true,
+              isActive: true,
+              createdAt: true,
             },
           },
           user: {
             select: {
+              id: true,
               firstName: true,
               lastName: true,
               email: true,
+              phone: true,
+              role: true,
+              isActive: true,
+              createdAt: true,
             },
           },
         },

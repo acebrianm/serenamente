@@ -1,17 +1,11 @@
+import { useQueryClient } from '@tanstack/react-query';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { authService, User, userService } from '../services/api';
+import { queryKeys } from '../hooks/useApi';
+import { User } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    phone?: string;
-  }) => Promise<void>;
   logout: () => void;
   loading: boolean;
   isAuthenticated: boolean;
@@ -32,6 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -39,64 +34,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (storedToken && storedUser) {
       setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-
-      userService.getMe().catch(() => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setToken(null);
-        setUser(null);
-      });
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      // Set user data in query cache
+      queryClient.setQueryData(queryKeys.user, parsedUser);
     }
     setLoading(false);
-  }, []);
-
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await authService.login({ email, password });
-      const { token: newToken, user: newUser } = response;
-
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      setToken(newToken);
-      setUser(newUser);
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const register = async (data: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    phone?: string;
-  }) => {
-    try {
-      const response = await authService.register(data);
-      const { token: newToken, user: newUser } = response;
-
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      setToken(newToken);
-      setUser(newUser);
-    } catch (error) {
-      throw error;
-    }
-  };
+  }, [queryClient]);
 
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setToken(null);
     setUser(null);
+    // Clear all cached data
+    queryClient.clear();
   };
 
   const value: AuthContextType = {
     user,
     token,
-    login,
-    register,
     logout,
     loading,
     isAuthenticated: !!token && !!user,

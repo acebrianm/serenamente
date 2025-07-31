@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, isAdmin, user, logout } = useAuth();
+  const { isAuthenticated, isAdmin, logout } = useAuth();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(null);
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
@@ -49,6 +49,42 @@ const Navbar: React.FC = () => {
 
   const handleMobileMenuClose = () => {
     setMobileMenuAnchor(null);
+  };
+
+  const handleMenuItemClick = (sectionId: string) => {
+    handleMobileMenuClose();
+    if (isHomePage) {
+      // If on home page, scroll to section
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // If on other page, navigate to home then scroll to section
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+  };
+
+  const handleDesktopMenuItemClick = (sectionId: string) => {
+    if (isHomePage) {
+      // Already handled by react-scroll Link component
+      return;
+    } else {
+      // If on other page, navigate to home then scroll to section
+      navigate('/');
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
   };
 
   const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -73,50 +109,69 @@ const Navbar: React.FC = () => {
           Serenamente
         </Typography>
 
-        {isHomePage && (
+        {isMobile ? (
           <>
-            {isMobile ? (
-              <>
-                <IconButton
-                  size="large"
-                  edge="start"
-                  color="inherit"
-                  aria-label="menu"
-                  onClick={handleMobileMenuOpen}
-                  sx={styles.mobileMenuButton}
-                >
-                  <MenuIcon />
-                </IconButton>
-                <Menu
-                  anchorEl={mobileMenuAnchor}
-                  open={Boolean(mobileMenuAnchor)}
-                  onClose={handleMobileMenuClose}
-                >
-                  {menuItems.map(item => (
-                    <MenuItem key={item.id} onClick={handleMobileMenuClose}>
-                      <Link to={item.id} smooth={true} duration={500} style={styles.mobileMenuLink}>
-                        {item.label}
-                      </Link>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </>
-            ) : (
-              <Box sx={styles.desktopMenuContainer}>
-                {menuItems.map(item => (
-                  <Link
-                    key={item.id}
-                    to={item.id}
-                    smooth={true}
-                    duration={500}
-                    style={styles.desktopMenuLink}
-                  >
-                    <Button sx={styles.desktopMenuButton(theme)}>{item.label}</Button>
-                  </Link>
-                ))}
-              </Box>
-            )}
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={handleMobileMenuOpen}
+              sx={styles.mobileMenuButton}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              anchorEl={mobileMenuAnchor}
+              open={Boolean(mobileMenuAnchor)}
+              onClose={handleMobileMenuClose}
+              sx={styles.mobileMenu}
+            >
+              {menuItems.map(item => (
+                <MenuItem key={item.id} onClick={() => handleMenuItemClick(item.id)}>
+                  <Typography sx={styles.mobileMenuItemText(theme)}>{item.label}</Typography>
+                </MenuItem>
+              ))}
+              {!isAuthenticated && (
+                <>
+                  <MenuItem onClick={handleMobileMenuClose}>
+                    <RouterLink to="/login" style={styles.mobileMenuLink}>
+                      <Typography sx={styles.mobileMenuItemText(theme)}>Iniciar Sesión</Typography>
+                    </RouterLink>
+                  </MenuItem>
+                  <MenuItem onClick={handleMobileMenuClose}>
+                    <RouterLink to="/register" style={styles.mobileMenuLink}>
+                      <Typography sx={styles.mobileMenuItemText(theme)}>Registrarse</Typography>
+                    </RouterLink>
+                  </MenuItem>
+                </>
+              )}
+            </Menu>
           </>
+        ) : (
+          <Box sx={styles.desktopMenuContainer}>
+            {menuItems.map(item =>
+              isHomePage ? (
+                <Link
+                  key={item.id}
+                  to={item.id}
+                  smooth={true}
+                  duration={500}
+                  style={styles.desktopMenuLink}
+                >
+                  <Button sx={styles.desktopMenuButton(theme)}>{item.label}</Button>
+                </Link>
+              ) : (
+                <Button
+                  key={item.id}
+                  onClick={() => handleDesktopMenuItemClick(item.id)}
+                  sx={styles.desktopMenuButton(theme)}
+                >
+                  {item.label}
+                </Button>
+              )
+            )}
+          </Box>
         )}
 
         <Box sx={styles.authContainer}>
@@ -161,24 +216,26 @@ const Navbar: React.FC = () => {
               </Menu>
             </>
           ) : (
-            <Box sx={styles.authButtons}>
-              <Button
-                component={RouterLink}
-                to="/login"
-                variant="outlined"
-                sx={styles.loginButton(theme)}
-              >
-                Iniciar Sesión
-              </Button>
-              <Button
-                component={RouterLink}
-                to="/register"
-                variant="contained"
-                sx={styles.registerButton(theme)}
-              >
-                Registrarse
-              </Button>
-            </Box>
+            !isMobile && (
+              <Box sx={styles.authButtons}>
+                <Button
+                  component={RouterLink}
+                  to="/login"
+                  variant="outlined"
+                  sx={styles.loginButton(theme)}
+                >
+                  Iniciar Sesión
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/register"
+                  variant="contained"
+                  sx={styles.registerButton(theme)}
+                >
+                  Registrarse
+                </Button>
+              </Box>
+            )
           )}
         </Box>
       </Toolbar>
@@ -204,11 +261,22 @@ const styles = {
   mobileMenuButton: {
     color: 'primary.main',
   },
+  mobileMenu: {
+    '& .MuiPaper-root': {
+      minWidth: '200px',
+    },
+  },
   mobileMenuLink: {
     textDecoration: 'none',
     color: 'inherit',
     width: '100%',
+    display: 'block',
   },
+  mobileMenuItemText: (theme: any) => ({
+    width: '100%',
+    color: theme.palette.text.primary,
+    fontWeight: 'medium',
+  }),
   desktopMenuContainer: {
     display: 'flex',
     gap: 2,
@@ -227,7 +295,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
   },
-  userMenuButton: (theme: any) => ({
+  userMenuButton: (_theme: any) => ({
     color: 'primary.main',
   }),
   menuIcon: {
@@ -241,7 +309,7 @@ const styles = {
     display: 'flex',
     gap: 1,
   },
-  loginButton: (theme: any) => ({
+  loginButton: (_theme: any) => ({
     borderColor: 'primary.main',
     color: 'primary.main',
     '&:hover': {
@@ -249,7 +317,7 @@ const styles = {
       color: 'primary.dark',
     },
   }),
-  registerButton: (theme: any) => ({
+  registerButton: (_theme: any) => ({
     backgroundColor: 'primary.main',
     '&:hover': {
       backgroundColor: 'primary.dark',

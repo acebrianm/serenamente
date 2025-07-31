@@ -1,11 +1,10 @@
-import { CalendarToday, Check, LocalOffer, LocationOn, Star } from '@mui/icons-material';
+import { CalendarToday, LocalOffer, LocationOn } from '@mui/icons-material';
 import {
   Alert,
   Box,
   Button,
   Card,
   CardContent,
-  Chip,
   Container,
   Dialog,
   DialogContent,
@@ -14,34 +13,21 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Event, eventService } from '../services/api';
+import { useEvents } from '../hooks/useApi';
+import { Event } from '../services/api';
 import PaymentForm from './payment/PaymentForm';
 
 const Tickets: React.FC = () => {
   const theme = useTheme();
   const { isAuthenticated } = useAuth();
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { data: events = [], isLoading: loading, error } = useEvents({ adminView: false });
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const data = await eventService.getAllEvents();
-        setEvents(data.filter(event => event.isActive));
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Error al cargar eventos');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEvents();
-  }, []);
+  // Filter active events
+  console.log('events: ', events);
 
   const handlePurchase = (event: Event) => {
     if (!isAuthenticated) {
@@ -78,7 +64,7 @@ const Tickets: React.FC = () => {
 
         {error && (
           <Alert severity="error" sx={styles.errorAlert}>
-            {error}
+            {(error as any)?.response?.data?.message || 'Error al cargar eventos'}
           </Alert>
         )}
 
@@ -101,7 +87,7 @@ const Tickets: React.FC = () => {
             </Box>
 
             <Grid container spacing={4} sx={{ mb: 6 }}>
-              {events.map((event, index) => (
+              {events.map((event, _index) => (
                 <Grid size={{ xs: 12, md: 6, lg: 4 }} key={event.id}>
                   <Card sx={styles.eventCard(theme)}>
                     <CardContent sx={styles.eventCardContent}>
@@ -201,7 +187,7 @@ const styles = {
   errorAlert: {
     mb: 3,
   },
-  noEventsContainer: (theme: any) => ({
+  noEventsContainer: (_theme: any) => ({
     textAlign: 'center',
     py: 8,
   }),

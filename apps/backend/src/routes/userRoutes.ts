@@ -4,7 +4,7 @@ import { authenticate, requireAdmin } from '../middlewares/auth';
 import { validateBody } from '../middlewares/validation';
 import { updateUserSchema } from '../utils/validation';
 
-const router = Router();
+const router: Router = Router();
 
 // User routes
 router.get('/me', authenticate, getMe);

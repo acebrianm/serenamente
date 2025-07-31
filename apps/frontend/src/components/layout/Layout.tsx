@@ -1,6 +1,6 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import React from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import { Outlet } from 'react-router-dom';
 import { AuthProvider } from '../../contexts/AuthContext';
 import theme from '../../theme/theme';

@@ -70,7 +70,7 @@ async function main() {
         'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800',
         'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800'
       ],
-      date: new Date('2024-12-20T18:00:00Z'),
+      date: new Date('2025-12-20T18:00:00Z'),
     },
   });
 
@@ -86,7 +86,7 @@ async function main() {
       promoImages: [
         'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800'
       ],
-      date: new Date('2024-12-10T16:00:00Z'),
+      date: new Date('2025-12-10T16:00:00Z'),
     },
   });
 

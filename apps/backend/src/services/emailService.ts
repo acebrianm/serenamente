@@ -195,6 +195,81 @@ class EmailService {
 
     await this.sendEmail(user.email, subject, html);
   }
+
+  async sendContactEmail(contactData: {
+    name: string;
+    email: string;
+    message: string;
+  }): Promise<void> {
+    const subject = `Nuevo mensaje de contacto - ${contactData.name}`;
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .contact-info { background-color: white; padding: 20px; border-radius: 8px; margin: 20px 0; }
+            .detail { margin: 15px 0; padding: 10px; border-left: 4px solid #4CAF50; }
+            .label { font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
+            .value { color: #333; }
+            .message-box { background-color: #f0f8f0; padding: 15px; border-radius: 8px; margin: 15px 0; }
+            .footer { padding: 20px; text-align: center; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>📨 Nuevo Mensaje de Contacto</h1>
+            </div>
+            <div class="content">
+              <p>Has recibido un nuevo mensaje a través del formulario de contacto de Serenamente.</p>
+              
+              <div class="contact-info">
+                <div class="detail">
+                  <span class="label">👤 Nombre:</span>
+                  <span class="value">${contactData.name}</span>
+                </div>
+                <div class="detail">
+                  <span class="label">📧 Email:</span>
+                  <span class="value">${contactData.email}</span>
+                </div>
+              </div>
+
+              <div class="message-box">
+                <span class="label">💬 Mensaje:</span>
+                <div class="value" style="margin-top: 10px; white-space: pre-wrap;">${contactData.message}</div>
+              </div>
+
+              <p><strong>📅 Fecha:</strong> ${new Date().toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}</p>
+            </div>
+            <div class="footer">
+              <p>Este mensaje fue enviado desde el formulario de contacto de Serenamente<br>
+              <a href="mailto:${contactData.email}">Responder directamente</a></p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    // Send to our admin email (SMTP_USER)
+    const adminEmail = process.env.SMTP_USER;
+    if (!adminEmail) {
+      throw new Error('SMTP_USER no está configurado');
+    }
+
+    await this.sendEmail(adminEmail, subject, html);
+  }
 }
 
 export const emailService = new EmailService();

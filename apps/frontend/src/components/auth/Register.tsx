@@ -16,12 +16,12 @@ import {
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useRegister } from '../../hooks/useApi';
 
 const Register: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const registerMutation = useRegister();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -33,45 +33,41 @@ const Register: React.FC = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-    setError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
-      setLoading(false);
+      toast.error('Las contraseñas no coinciden');
       return;
     }
 
-    try {
-      await register({
+    registerMutation.mutate(
+      {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
         phone: formData.phone || undefined,
-      });
-      toast.success('¡Cuenta creada exitosamente! Bienvenido a Serenamente');
-      navigate('/');
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Error al registrar usuario';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+      },
+      {
+        onSuccess: () => {
+          toast.success('¡Cuenta creada exitosamente! Bienvenido a Serenamente');
+          navigate('/');
+        },
+        onError: (err: any) => {
+          const errorMessage = err.response?.data?.message || 'Error al registrar usuario';
+          toast.error(errorMessage);
+        },
+      }
+    );
   };
 
   return (
@@ -87,9 +83,10 @@ const Register: React.FC = () => {
               Únete a nosotros para acceder a eventos transformadores
             </Typography>
 
-            {error && (
+            {registerMutation.error && (
               <Alert severity="error" sx={styles.errorAlert}>
-                {error}
+                {(registerMutation.error as any)?.response?.data?.message ||
+                  'Error al registrar usuario'}
               </Alert>
             )}
 
@@ -193,10 +190,10 @@ const Register: React.FC = () => {
                 fullWidth
                 variant="contained"
                 size="large"
-                disabled={loading}
+                disabled={registerMutation.isPending}
                 sx={styles.submitButton(theme)}
               >
-                {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+                {registerMutation.isPending ? 'Creando cuenta...' : 'Crear Cuenta'}
               </Button>
             </Box>
 

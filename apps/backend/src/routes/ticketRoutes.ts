@@ -10,7 +10,7 @@ import { authenticate, requireAdmin } from '../middlewares/auth';
 import { validateBody, validateParams } from '../middlewares/validation';
 import { createTicketSchema, updateTicketSchema, uuidSchema } from '../utils/validation';
 
-const router = Router();
+const router: Router = Router();
 
 // User routes
 router.get('/me', authenticate, getMyTickets);

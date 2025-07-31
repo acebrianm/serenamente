@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { AuthenticatedRequest } from '../middlewares/auth';
 import { emailService } from '../services/emailService';
 import { prisma } from '../utils/database';
 import { generateToken } from '../utils/jwt';

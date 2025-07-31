@@ -1,5 +1,6 @@
 import { Email, Send, WhatsApp } from '@mui/icons-material';
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -12,14 +13,18 @@ import {
   useTheme,
 } from '@mui/material';
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { useContactMessage } from '../hooks/useApi';
 
 const Contact: React.FC = () => {
   const theme = useTheme();
+  const sendMessageMutation = useContactMessage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: '',
   });
+  const [success, setSuccess] = useState(false);
 
   const contactInfo = {
     email: 'contacto@serenamente.info ',
@@ -36,10 +41,30 @@ const Contact: React.FC = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const emailBody = `Name: ${formData.name}%0D%0AEmail: ${formData.email}%0D%0AMessage: ${formData.message}`;
-    window.open(`mailto:${contactInfo.email}?subject=${emailSubject}&body=${emailBody}`);
+    setSuccess(false);
+
+    sendMessageMutation.mutate(
+      {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: formData.message.trim(),
+      },
+      {
+        onSuccess: () => {
+          setSuccess(true);
+          setFormData({ name: '', email: '', message: '' });
+          toast.success('¡Mensaje enviado exitosamente! Te contactaremos pronto.');
+        },
+        onError: (err: any) => {
+          const errorMessage =
+            err.response?.data?.message ||
+            'Error al enviar el mensaje. Por favor intenta de nuevo.';
+          toast.error(errorMessage);
+        },
+      }
+    );
   };
 
   const handleWhatsApp = () => {
@@ -81,6 +106,19 @@ const Contact: React.FC = () => {
         <Grid container spacing={4}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Card sx={styles.formCard(theme)}>
+              {sendMessageMutation.error && (
+                <Alert severity="error" sx={styles.errorAlert}>
+                  {(sendMessageMutation.error as any)?.response?.data?.message ||
+                    'Error al enviar el mensaje'}
+                </Alert>
+              )}
+
+              {success && (
+                <Alert severity="success" sx={styles.successAlert}>
+                  ¡Mensaje enviado exitosamente! Te contactaremos pronto.
+                </Alert>
+              )}
+
               <form onSubmit={handleSubmit}>
                 <TextField
                   fullWidth
@@ -120,10 +158,11 @@ const Contact: React.FC = () => {
                   variant="contained"
                   size="large"
                   fullWidth
+                  disabled={sendMessageMutation.isPending}
                   startIcon={<Send />}
                   sx={styles.submitButton(theme)}
                 >
-                  Enviar Mensaje
+                  {sendMessageMutation.isPending ? 'Enviando...' : 'Enviar Mensaje'}
                 </Button>
               </form>
             </Card>
@@ -220,6 +259,12 @@ const styles = {
     borderRadius: theme.custom.borderRadius.medium,
     boxShadow: theme.palette.custom.shadow.medium,
   }),
+  errorAlert: {
+    mb: 3,
+  },
+  successAlert: {
+    mb: 3,
+  },
   formField: {
     mb: 3,
   },

@@ -1,4 +1,4 @@
-import { Add, Delete, Edit, Event as EventIcon, Visibility } from '@mui/icons-material';
+import { Add, Delete, Edit, Event as EventIcon } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -17,15 +17,18 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Event, eventService } from '../../services/api';
+import { useCreateEvent, useDeleteEvent, useEvents, useUpdateEvent } from '../../hooks/useApi';
+import { Event } from '../../services/api';
 
 const EventManagement: React.FC = () => {
   const theme = useTheme();
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { data: events = [], isLoading: loading, error } = useEvents();
+  const createEventMutation = useCreateEvent();
+  const updateEventMutation = useUpdateEvent();
+  const deleteEventMutation = useDeleteEvent();
+
   const [openDialog, setOpenDialog] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [formData, setFormData] = useState({
@@ -36,21 +39,6 @@ const EventManagement: React.FC = () => {
     date: '',
     promoVideo: '',
   });
-
-  useEffect(() => {
-    fetchEvents();
-  }, []);
-
-  const fetchEvents = async () => {
-    try {
-      const data = await eventService.getAllEventsAdmin();
-      setEvents(data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al cargar eventos');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleOpenDialog = (event?: Event) => {
     if (event) {
@@ -75,7 +63,6 @@ const EventManagement: React.FC = () => {
       });
     }
     setOpenDialog(true);
-    setError('');
   };
 
   const handleCloseDialog = () => {
@@ -92,32 +79,41 @@ const EventManagement: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
 
-    try {
-      const eventData = {
-        name: formData.name,
-        description: formData.description,
-        address: formData.address,
-        price: parseFloat(formData.price),
-        date: new Date(formData.date).toISOString(),
-        promoVideo: formData.promoVideo || undefined,
-      };
+    const eventData = {
+      name: formData.name,
+      description: formData.description,
+      address: formData.address,
+      price: parseFloat(formData.price),
+      date: new Date(formData.date).toISOString(),
+      promoVideo: formData.promoVideo || undefined,
+    };
 
-      if (editingEvent) {
-        await eventService.updateEvent(editingEvent.id, eventData);
-        toast.success('¡Evento actualizado correctamente!');
-      } else {
-        await eventService.createEvent(eventData);
-        toast.success('¡Evento creado correctamente!');
-      }
-
-      fetchEvents();
-      handleCloseDialog();
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Error al guardar el evento';
-      setError(errorMessage);
-      toast.error(errorMessage);
+    if (editingEvent) {
+      updateEventMutation.mutate(
+        { id: editingEvent.id, data: eventData },
+        {
+          onSuccess: () => {
+            toast.success('¡Evento actualizado correctamente!');
+            handleCloseDialog();
+          },
+          onError: (err: any) => {
+            const errorMessage = err.response?.data?.message || 'Error al actualizar el evento';
+            toast.error(errorMessage);
+          },
+        }
+      );
+    } else {
+      createEventMutation.mutate(eventData, {
+        onSuccess: () => {
+          toast.success('¡Evento creado correctamente!');
+          handleCloseDialog();
+        },
+        onError: (err: any) => {
+          const errorMessage = err.response?.data?.message || 'Error al crear el evento';
+          toast.error(errorMessage);
+        },
+      });
     }
   };
 
@@ -126,25 +122,30 @@ const EventManagement: React.FC = () => {
       return;
     }
 
-    try {
-      await eventService.deleteEvent(eventId);
-      toast.success('¡Evento eliminado correctamente!');
-      fetchEvents();
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Error al eliminar el evento';
-      toast.error(errorMessage);
-    }
+    deleteEventMutation.mutate(eventId, {
+      onSuccess: () => {
+        toast.success('¡Evento eliminado correctamente!');
+      },
+      onError: (err: any) => {
+        const errorMessage = err.response?.data?.message || 'Error al eliminar el evento';
+        toast.error(errorMessage);
+      },
+    });
   };
 
   const handleToggleActive = async (event: Event) => {
-    try {
-      await eventService.updateEvent(event.id, { isActive: !event.isActive });
-      toast.success(`¡Evento ${event.isActive ? 'desactivado' : 'activado'} correctamente!`);
-      fetchEvents();
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Error al actualizar el evento';
-      toast.error(errorMessage);
-    }
+    updateEventMutation.mutate(
+      { id: event.id, data: { isActive: !event.isActive } },
+      {
+        onSuccess: () => {
+          toast.success(`¡Evento ${event.isActive ? 'desactivado' : 'activado'} correctamente!`);
+        },
+        onError: (err: any) => {
+          const errorMessage = err.response?.data?.message || 'Error al actualizar el evento';
+          toast.error(errorMessage);
+        },
+      }
+    );
   };
 
   if (loading) {
@@ -174,7 +175,7 @@ const EventManagement: React.FC = () => {
 
         {error && (
           <Alert severity="error" sx={styles.alert}>
-            {error}
+            {(error as any)?.response?.data?.message || 'Error al cargar eventos'}
           </Alert>
         )}
 

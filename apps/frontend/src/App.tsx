@@ -1,4 +1,3 @@
-import React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import EventManagement from './components/admin/EventManagement';
 import Login from './components/auth/Login';

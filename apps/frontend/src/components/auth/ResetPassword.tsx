@@ -13,33 +13,32 @@ import {
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import { authService } from '../../services/api';
+import { useResetPassword } from '../../hooks/useApi';
 
 const ResetPassword: React.FC = () => {
   const theme = useTheme();
+  const resetPasswordMutation = useResetPassword();
 
   const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
 
-    try {
-      await authService.resetPassword({ email });
-      setSuccess(true);
-      toast.success('¡Correo de recuperación enviado exitosamente!');
-    } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.message || 'Error al enviar el correo de recuperación';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+    resetPasswordMutation.mutate(
+      { email },
+      {
+        onSuccess: () => {
+          setSuccess(true);
+          toast.success('¡Correo de recuperación enviado exitosamente!');
+        },
+        onError: (err: any) => {
+          const errorMessage =
+            err.response?.data?.message || 'Error al enviar el correo de recuperación';
+          toast.error(errorMessage);
+        },
+      }
+    );
   };
 
   if (success) {
@@ -93,9 +92,10 @@ const ResetPassword: React.FC = () => {
               Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña
             </Typography>
 
-            {error && (
+            {resetPasswordMutation.error && (
               <Alert severity="error" sx={styles.errorAlert}>
-                {error}
+                {(resetPasswordMutation.error as any)?.response?.data?.message ||
+                  'Error al enviar el correo de recuperación'}
               </Alert>
             )}
 
@@ -119,10 +119,10 @@ const ResetPassword: React.FC = () => {
                 fullWidth
                 variant="contained"
                 size="large"
-                disabled={loading}
+                disabled={resetPasswordMutation.isPending}
                 sx={styles.submitButton(theme)}
               >
-                {loading ? 'Enviando...' : 'Enviar Enlace de Recuperación'}
+                {resetPasswordMutation.isPending ? 'Enviando...' : 'Enviar Enlace de Recuperación'}
               </Button>
             </Box>
 

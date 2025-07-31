@@ -74,6 +74,37 @@ export interface PaymentIntent {
   paymentIntentId: string;
 }
 
+// API Response interfaces that match backend responses
+export interface ApiUserResponse {
+  message: string;
+  user: User;
+}
+
+export interface ApiUsersResponse {
+  message: string;
+  users: User[];
+}
+
+export interface ApiEventResponse {
+  message: string;
+  event: Event;
+}
+
+export interface ApiEventsResponse {
+  message: string;
+  events: Event[];
+}
+
+export interface ApiTicketResponse {
+  message: string;
+  ticket: Ticket;
+}
+
+export interface ApiTicketsResponse {
+  message: string;
+  tickets: Ticket[];
+}
+
 export const authService = {
   register: async (data: {
     firstName: string;
@@ -98,7 +129,7 @@ export const authService = {
 };
 
 export const userService = {
-  getMe: async (): Promise<User> => {
+  getMe: async (): Promise<ApiUserResponse> => {
     const response = await api.get('/users/me');
     return response.data;
   },
@@ -107,7 +138,7 @@ export const userService = {
     firstName?: string;
     lastName?: string;
     phone?: string;
-  }): Promise<User> => {
+  }): Promise<ApiUserResponse> => {
     const response = await api.put('/users', data);
     return response.data;
   },
@@ -117,24 +148,24 @@ export const userService = {
     return response.data;
   },
 
-  getAllUsers: async (): Promise<User[]> => {
+  getAllUsers: async (): Promise<ApiUsersResponse> => {
     const response = await api.get('/users/admin/users');
     return response.data;
   },
 };
 
 export const eventService = {
-  getAllEvents: async (): Promise<Event[]> => {
+  getAllEvents: async (): Promise<ApiEventsResponse> => {
     const response = await api.get('/events');
     return response.data;
   },
 
-  getEventById: async (id: string): Promise<Event> => {
+  getEventById: async (id: string): Promise<ApiEventResponse> => {
     const response = await api.get(`/events/${id}`);
     return response.data;
   },
 
-  getAllEventsAdmin: async (): Promise<Event[]> => {
+  getAllEventsAdmin: async (): Promise<ApiEventsResponse> => {
     const response = await api.get('/events/admin/all');
     return response.data;
   },
@@ -147,7 +178,7 @@ export const eventService = {
     promoVideo?: string;
     promoImages?: string[];
     date: string;
-  }): Promise<Event> => {
+  }): Promise<ApiEventResponse> => {
     const response = await api.post('/events/admin', data);
     return response.data;
   },
@@ -164,7 +195,7 @@ export const eventService = {
       date?: string;
       isActive?: boolean;
     }
-  ): Promise<Event> => {
+  ): Promise<ApiEventResponse> => {
     const response = await api.put(`/events/admin/${id}`, data);
     return response.data;
   },
@@ -176,12 +207,12 @@ export const eventService = {
 };
 
 export const ticketService = {
-  getMyTickets: async (): Promise<Ticket[]> => {
+  getMyTickets: async (): Promise<ApiTicketsResponse> => {
     const response = await api.get('/tickets/me');
     return response.data;
   },
 
-  getAllTickets: async (): Promise<Ticket[]> => {
+  getAllTickets: async (): Promise<ApiTicketsResponse> => {
     const response = await api.get('/tickets/admin');
     return response.data;
   },
@@ -190,7 +221,7 @@ export const ticketService = {
     nameOfAttendee: string;
     eventId: string;
     userId: string;
-  }): Promise<Ticket> => {
+  }): Promise<ApiTicketResponse> => {
     const response = await api.post('/tickets/admin', data);
     return response.data;
   },
@@ -201,7 +232,7 @@ export const ticketService = {
       nameOfAttendee?: string;
       isActive?: boolean;
     }
-  ): Promise<Ticket> => {
+  ): Promise<ApiTicketResponse> => {
     const response = await api.put(`/tickets/admin/${id}`, data);
     return response.data;
   },
@@ -227,6 +258,17 @@ export const paymentService = {
     nameOfAttendee: string;
   }): Promise<{ success: boolean; ticket?: Ticket }> => {
     const response = await api.post('/payments/confirm-payment', data);
+    return response.data;
+  },
+};
+
+export const contactService = {
+  sendMessage: async (data: {
+    name: string;
+    email: string;
+    message: string;
+  }): Promise<{ message: string }> => {
+    const response = await api.post('/contact', data);
     return response.data;
   },
 };

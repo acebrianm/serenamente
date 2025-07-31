@@ -118,7 +118,7 @@ export const createTicket = async (req: AuthenticatedRequest, res: Response): Pr
   }
 };
 
-export const getAllTickets = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getAllTickets = async (_req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const tickets = await prisma.ticket.findMany({
       include: {
@@ -163,6 +163,14 @@ export const updateTicket = async (req: AuthenticatedRequest, res: Response): Pr
     const { id } = req.params;
     const { nameOfAttendee } = req.body;
 
+    if (!id) {
+      res.status(400).json({
+        error: 'BAD_REQUEST',
+        message: 'ID del ticket es requerido',
+      });
+      return;
+    }
+
     const ticket = await prisma.ticket.update({
       where: { id },
       data: { nameOfAttendee },
@@ -203,6 +211,14 @@ export const updateTicket = async (req: AuthenticatedRequest, res: Response): Pr
 export const deleteTicket = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
+
+    if (!id) {
+      res.status(400).json({
+        error: 'BAD_REQUEST',
+        message: 'ID del ticket es requerido',
+      });
+      return;
+    }
 
     await prisma.ticket.update({
       where: { id },

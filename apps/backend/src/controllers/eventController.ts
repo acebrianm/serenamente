@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../middlewares/auth';
 import { prisma } from '../utils/database';
 
-export const getAllEvents = async (req: Request, res: Response): Promise<void> => {
+export const getAllEvents = async (_req: Request, res: Response): Promise<void> => {
   try {
     const events = await prisma.event.findMany({
       where: {
@@ -49,6 +49,14 @@ export const getEventById = async (req: Request, res: Response): Promise<void> =
   try {
     const { id } = req.params;
 
+    if (!id) {
+      res.status(400).json({
+        error: 'BAD_REQUEST',
+        message: 'ID del evento es requerido',
+      });
+      return;
+    }
+
     const event = await prisma.event.findUnique({
       where: { id },
       select: {
@@ -59,6 +67,7 @@ export const getEventById = async (req: Request, res: Response): Promise<void> =
         price: true,
         promoVideo: true,
         promoImages: true,
+        isActive: true,
         date: true,
         createdAt: true,
         _count: {
@@ -135,6 +144,14 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response): Pro
     const { id } = req.params;
     const { name, description, address, price, promoVideo, promoImages, date } = req.body;
 
+    if (!id) {
+      res.status(400).json({
+        error: 'BAD_REQUEST',
+        message: 'ID del evento es requerido',
+      });
+      return;
+    }
+
     const updateData: any = {};
     if (name) updateData.name = name;
     if (description) updateData.description = description;
@@ -177,6 +194,14 @@ export const deleteEvent = async (req: AuthenticatedRequest, res: Response): Pro
   try {
     const { id } = req.params;
 
+    if (!id) {
+      res.status(400).json({
+        error: 'BAD_REQUEST',
+        message: 'ID del evento es requerido',
+      });
+      return;
+    }
+
     await prisma.event.update({
       where: { id },
       data: { isActive: false },
@@ -195,7 +220,7 @@ export const deleteEvent = async (req: AuthenticatedRequest, res: Response): Pro
 };
 
 export const getAllEventsAdmin = async (
-  req: AuthenticatedRequest,
+  _req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
   try {

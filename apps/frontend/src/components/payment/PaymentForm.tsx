@@ -14,9 +14,10 @@ import {
 import { loadStripe } from '@stripe/stripe-js';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Event, paymentService } from '../../services/api';
+import { useCreatePaymentIntent } from '../../hooks/useApi';
+import { Event } from '../../services/api';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || '');
 
@@ -28,8 +29,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const createPaymentIntentMutation = useCreatePaymentIntent();
   const [nameOfAttendee, setNameOfAttendee] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,44 +46,53 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
       return;
     }
 
-    setLoading(true);
     setError('');
 
-    try {
-      const stripe = await stripePromise;
-      if (!stripe) {
-        throw new Error('Stripe no se pudo cargar');
-      }
-
-      const { clientSecret, paymentIntentId } = await paymentService.createPaymentIntent({
+    createPaymentIntentMutation.mutate(
+      {
         eventId: event.id,
         nameOfAttendee: nameOfAttendee.trim(),
-      });
+      },
+      {
+        onSuccess: async data => {
+          try {
+            const stripe = await stripePromise;
+            if (!stripe) {
+              throw new Error('Stripe no se pudo cargar');
+            }
 
-      toast.loading('Procesando pago...', { id: 'payment-processing' });
+            const { clientSecret, paymentIntentId } = data;
 
-      const { error: stripeError } = await stripe.confirmPayment({
-        clientSecret,
-        confirmParams: {
-          return_url: `${window.location.origin}/payment-success?eventId=${event.id}&nameOfAttendee=${encodeURIComponent(nameOfAttendee)}&paymentIntentId=${paymentIntentId}`,
+            toast.loading('Procesando pago...', { id: 'payment-processing' });
+
+            const { error: stripeError } = await stripe.confirmPayment({
+              clientSecret,
+              confirmParams: {
+                return_url: `${window.location.origin}/payment-success?eventId=${event.id}&nameOfAttendee=${encodeURIComponent(nameOfAttendee)}&paymentIntentId=${paymentIntentId}`,
+              },
+            });
+
+            toast.dismiss('payment-processing');
+
+            if (stripeError) {
+              const errorMessage = stripeError.message || 'Error al procesar el pago';
+              setError(errorMessage);
+              toast.error(errorMessage);
+            }
+          } catch (_err: any) {
+            toast.dismiss('payment-processing');
+            const errorMessage = 'Error al procesar el pago con Stripe';
+            setError(errorMessage);
+            toast.error(errorMessage);
+          }
         },
-      });
-
-      toast.dismiss('payment-processing');
-
-      if (stripeError) {
-        const errorMessage = stripeError.message || 'Error al procesar el pago';
-        setError(errorMessage);
-        toast.error(errorMessage);
+        onError: (err: any) => {
+          const errorMessage = err.response?.data?.message || 'Error al procesar el pago';
+          setError(errorMessage);
+          toast.error(errorMessage);
+        },
       }
-    } catch (err: any) {
-      toast.dismiss('payment-processing');
-      const errorMessage = err.response?.data?.message || 'Error al procesar el pago';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
+    );
   };
 
   return (
@@ -131,9 +141,11 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
                   </Typography>
                 </Box>
 
-                {error && (
+                {(error || createPaymentIntentMutation.error) && (
                   <Alert severity="error" sx={styles.errorAlert}>
-                    {error}
+                    {error ||
+                      (createPaymentIntentMutation.error as any)?.response?.data?.message ||
+                      'Error al procesar el pago'}
                   </Alert>
                 )}
 
@@ -164,10 +176,12 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
                     fullWidth
                     variant="contained"
                     size="large"
-                    disabled={loading}
+                    disabled={createPaymentIntentMutation.isPending}
                     sx={styles.payButton(theme)}
                   >
-                    {loading ? 'Procesando...' : `Pagar $${event.price}`}
+                    {createPaymentIntentMutation.isPending
+                      ? 'Procesando...'
+                      : `Pagar $${event.price}`}
                   </Button>
                 </Box>
 
