@@ -1,6 +1,6 @@
 // Load environment variables FIRST before any other imports
+import path from 'node:path';
 import dotenv from 'dotenv';
-import path from 'path';
 
 const envPath = path.resolve(__dirname, '../.env');
 dotenv.config({ path: envPath });
@@ -22,7 +22,7 @@ import userRoutes from './routes/userRoutes';
 import { connectDatabase } from './utils/database';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env['PORT'] || 3001;
 
 // Rate limiting
 const limiter = rateLimit({
@@ -43,7 +43,7 @@ app.use(limiter);
 // CORS configuration
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env['FRONTEND_URL'] || 'http://localhost:3000',
     credentials: true,
   })
 );
@@ -58,7 +58,7 @@ app.get('/health', (_req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
+    environment: process.env['NODE_ENV'] || 'development',
   });
 });
 
@@ -84,7 +84,7 @@ const startServer = async () => {
     app.listen(PORT, () => {
       console.log(`🚀 Servidor ejecutándose en http://localhost:${PORT}`);
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
-      console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🌍 Entorno: ${process.env['NODE_ENV'] || 'development'}`);
     });
   } catch (error) {
     console.error('❌ Error iniciando el servidor:', error);

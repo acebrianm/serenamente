@@ -6,10 +6,6 @@ class EmailService {
   private isConfigured: boolean = false;
   private initialized: boolean = false;
 
-  constructor() {
-    // Don't initialize here - do it lazily when first used
-  }
-
   private ensureInitialized() {
     if (!this.initialized) {
       this.initializeTransporter();
@@ -283,7 +279,7 @@ class EmailService {
             </div>
             <div class="content">
               <p>Has recibido un nuevo mensaje a través del formulario de contacto de Serenamente.</p>
-              
+
               <div class="contact-info">
                 <div class="detail">
                   <span class="label">👤 Nombre:</span>
