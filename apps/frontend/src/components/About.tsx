@@ -31,7 +31,7 @@ const About: React.FC = () => {
     <Box id="about" sx={styles.aboutSection}>
       <Container maxWidth="lg">
         <Typography variant="h2" component="h2" sx={styles.sectionTitle(theme)}>
-          Acerca de la Conferencia
+          Acerca de Serenamente
         </Typography>
 
         <Box sx={styles.descriptionContainer}>

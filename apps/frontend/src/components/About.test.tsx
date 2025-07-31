@@ -11,7 +11,7 @@ const renderWithTheme = (component: React.ReactElement) => {
 describe('About Component', () => {
   test('renders section title', () => {
     renderWithTheme(<About />);
-    expect(screen.getByText('Acerca de la Conferencia')).toBeInTheDocument();
+    expect(screen.getByText('Acerca de Serenamente')).toBeInTheDocument();
   });
 
   test('renders main description', () => {
@@ -53,7 +53,7 @@ describe('About Component', () => {
   test('has about section id for navigation', () => {
     renderWithTheme(<About />);
     const aboutSection = screen
-      .getByRole('heading', { name: 'Acerca de la Conferencia' })
+      .getByRole('heading', { name: 'Acerca de Serenamente' })
       .closest('#about');
     expect(aboutSection).toBeInTheDocument();
   });

@@ -12,7 +12,7 @@ describe('App Component', () => {
   test('renders all main sections', () => {
     render(<App />);
 
-    expect(screen.getByText('Acerca de la Conferencia')).toBeInTheDocument();
+    expect(screen.getByText('Acerca de Serenamente')).toBeInTheDocument();
     expect(screen.getByText('Nuestra Misión')).toBeInTheDocument();
     expect(screen.getAllByText('Entradas')).toHaveLength(3); // Navbar, Section title, Footer
     expect(screen.getAllByText('Contacto')).toHaveLength(4); // Navbar, Section title, Footer navigation, Footer section
