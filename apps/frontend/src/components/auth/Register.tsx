@@ -17,6 +17,7 @@ import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRegister } from '../../hooks/useApi';
+import SEOHelmet from '../SEOHelmet';
 
 const Register: React.FC = () => {
   const theme = useTheme();
@@ -75,144 +76,152 @@ const Register: React.FC = () => {
   };
 
   return (
-    <Box sx={styles.registerContainer(theme)}>
-      <Container maxWidth="sm">
-        <Card sx={styles.registerCard(theme)}>
-          <CardContent sx={styles.cardContent}>
-            <Typography variant="h3" component="h1" sx={styles.title(theme)}>
-              Crear Cuenta
-            </Typography>
-
-            <Typography variant="body1" sx={styles.subtitle(theme)}>
-              Únete a nosotros para acceder a eventos transformadores
-            </Typography>
-
-            {registerMutation.error && (
-              <Alert severity="error" sx={styles.errorAlert}>
-                {(registerMutation.error as any)?.response?.data?.message ||
-                  'Error al registrar usuario'}
-              </Alert>
-            )}
-
-            <Box component="form" onSubmit={handleSubmit} sx={styles.form}>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    fullWidth
-                    label="Nombre"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    required
-                    variant="outlined"
-                    sx={styles.textField(theme)}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    fullWidth
-                    label="Apellido"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    required
-                    variant="outlined"
-                    sx={styles.textField(theme)}
-                  />
-                </Grid>
-              </Grid>
-
-              <TextField
-                fullWidth
-                label="Correo Electrónico"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                variant="outlined"
-                sx={styles.textField(theme)}
-              />
-
-              <TextField
-                fullWidth
-                label="Teléfono (Opcional)"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                variant="outlined"
-                sx={styles.textField(theme)}
-              />
-
-              <TextField
-                fullWidth
-                label="Contraseña"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                value={formData.password}
-                onChange={handleChange}
-                required
-                variant="outlined"
-                sx={styles.textField(theme)}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-
-              <TextField
-                fullWidth
-                label="Confirmar Contraseña"
-                name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                variant="outlined"
-                sx={styles.textField(theme)}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        edge="end"
-                      >
-                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                size="large"
-                disabled={registerMutation.isPending}
-                sx={styles.submitButton(theme)}
-              >
-                {registerMutation.isPending ? 'Creando cuenta...' : 'Crear Cuenta'}
-              </Button>
-            </Box>
-
-            <Box sx={styles.linksContainer}>
-              <Typography variant="body2" sx={styles.linkText(theme)}>
-                ¿Ya tienes cuenta?{' '}
-                <Link to="/login" style={styles.link(theme)}>
-                  Iniciar sesión
-                </Link>
+    <>
+      <SEOHelmet
+        title="Registrarse - Serenamente"
+        description="Crea tu cuenta en Serenamente y asegura tu lugar en la conferencia de bienestar mental más importante. Regístrate ahora y transforma tu vida."
+        keywords="registro, crear cuenta, serenamente, conferencia, bienestar mental, tickets"
+        url="https://serenamente.info/register"
+      />
+      <Box sx={styles.registerContainer(theme)}>
+        <Container maxWidth="sm">
+          <Card sx={styles.registerCard(theme)}>
+            <CardContent sx={styles.cardContent}>
+              <Typography variant="h3" component="h1" sx={styles.title(theme)}>
+                Crear Cuenta
               </Typography>
-            </Box>
-          </CardContent>
-        </Card>
-      </Container>
-    </Box>
+
+              <Typography variant="body1" sx={styles.subtitle(theme)}>
+                Únete a nosotros para acceder a eventos transformadores
+              </Typography>
+
+              {registerMutation.error && (
+                <Alert severity="error" sx={styles.errorAlert}>
+                  {(registerMutation.error as any)?.response?.data?.message ||
+                    'Error al registrar usuario'}
+                </Alert>
+              )}
+
+              <Box component="form" onSubmit={handleSubmit} sx={styles.form}>
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      fullWidth
+                      label="Nombre"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      required
+                      variant="outlined"
+                      sx={styles.textField(theme)}
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      fullWidth
+                      label="Apellido"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      required
+                      variant="outlined"
+                      sx={styles.textField(theme)}
+                    />
+                  </Grid>
+                </Grid>
+
+                <TextField
+                  fullWidth
+                  label="Correo Electrónico"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  variant="outlined"
+                  sx={styles.textField(theme)}
+                />
+
+                <TextField
+                  fullWidth
+                  label="Teléfono (Opcional)"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  variant="outlined"
+                  sx={styles.textField(theme)}
+                />
+
+                <TextField
+                  fullWidth
+                  label="Contraseña"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  variant="outlined"
+                  sx={styles.textField(theme)}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <TextField
+                  fullWidth
+                  label="Confirmar Contraseña"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  variant="outlined"
+                  sx={styles.textField(theme)}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          edge="end"
+                        >
+                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  disabled={registerMutation.isPending}
+                  sx={styles.submitButton(theme)}
+                >
+                  {registerMutation.isPending ? 'Creando cuenta...' : 'Crear Cuenta'}
+                </Button>
+              </Box>
+
+              <Box sx={styles.linksContainer}>
+                <Typography variant="body2" sx={styles.linkText(theme)}>
+                  ¿Ya tienes cuenta?{' '}
+                  <Link to="/login" style={styles.link(theme)}>
+                    Iniciar sesión
+                  </Link>
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Container>
+      </Box>
+    </>
   );
 };
 

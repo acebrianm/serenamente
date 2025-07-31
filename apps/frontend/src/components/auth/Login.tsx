@@ -16,6 +16,7 @@ import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLogin } from '../../hooks/useApi';
+import SEOHelmet from '../SEOHelmet';
 
 const Login: React.FC = () => {
   const theme = useTheme();
@@ -55,89 +56,99 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Box sx={styles.loginContainer(theme)}>
-      <Container maxWidth="sm">
-        <Card sx={styles.loginCard(theme)}>
-          <CardContent sx={styles.cardContent}>
-            <Typography variant="h3" component="h1" sx={styles.title(theme)}>
-              Iniciar Sesión
-            </Typography>
-
-            <Typography variant="body1" sx={styles.subtitle(theme)}>
-              Accede a tu cuenta para gestionar tus entradas
-            </Typography>
-
-            {loginMutation.error && (
-              <Alert severity="error" sx={styles.errorAlert}>
-                {(loginMutation.error as any)?.response?.data?.message || 'Error al iniciar sesión'}
-              </Alert>
-            )}
-
-            <Box component="form" onSubmit={handleSubmit} sx={styles.form}>
-              <TextField
-                fullWidth
-                label="Correo Electrónico"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                variant="outlined"
-                sx={styles.textField(theme)}
-              />
-
-              <TextField
-                fullWidth
-                label="Contraseña"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                value={formData.password}
-                onChange={handleChange}
-                required
-                variant="outlined"
-                sx={styles.textField(theme)}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                size="large"
-                disabled={loginMutation.isPending}
-                sx={styles.submitButton(theme)}
-              >
-                {loginMutation.isPending ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-              </Button>
-            </Box>
-
-            <Box sx={styles.linksContainer}>
-              <Typography variant="body2" sx={styles.linkText(theme)}>
-                ¿No tienes cuenta?{' '}
-                <Link to="/register" style={styles.link(theme)}>
-                  Regístrate aquí
-                </Link>
+    <>
+      <SEOHelmet
+        title="Iniciar Sesión - Serenamente"
+        description="Inicia sesión en tu cuenta de Serenamente para acceder a tus tickets y gestionar tu perfil. Únete a la conferencia de bienestar mental más importante."
+        keywords="login, iniciar sesión, serenamente, cuenta, perfil, tickets"
+        url="https://serenamente.info/login"
+        noIndex={true}
+      />
+      <Box sx={styles.loginContainer(theme)}>
+        <Container maxWidth="sm">
+          <Card sx={styles.loginCard(theme)}>
+            <CardContent sx={styles.cardContent}>
+              <Typography variant="h3" component="h1" sx={styles.title(theme)}>
+                Iniciar Sesión
               </Typography>
 
-              <Typography variant="body2" sx={styles.linkText(theme)}>
-                ¿Olvidaste tu contraseña?{' '}
-                <Link to="/reset-password" style={styles.link(theme)}>
-                  Recuperar contraseña
-                </Link>
+              <Typography variant="body1" sx={styles.subtitle(theme)}>
+                Accede a tu cuenta para gestionar tus entradas
               </Typography>
-            </Box>
-          </CardContent>
-        </Card>
-      </Container>
-    </Box>
+
+              {loginMutation.error && (
+                <Alert severity="error" sx={styles.errorAlert}>
+                  {(loginMutation.error as any)?.response?.data?.message ||
+                    'Error al iniciar sesión'}
+                </Alert>
+              )}
+
+              <Box component="form" onSubmit={handleSubmit} sx={styles.form}>
+                <TextField
+                  fullWidth
+                  label="Correo Electrónico"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  variant="outlined"
+                  sx={styles.textField(theme)}
+                />
+
+                <TextField
+                  fullWidth
+                  label="Contraseña"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  variant="outlined"
+                  sx={styles.textField(theme)}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  disabled={loginMutation.isPending}
+                  sx={styles.submitButton(theme)}
+                >
+                  {loginMutation.isPending ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+                </Button>
+              </Box>
+
+              <Box sx={styles.linksContainer}>
+                <Typography variant="body2" sx={styles.linkText(theme)}>
+                  ¿No tienes cuenta?{' '}
+                  <Link to="/register" style={styles.link(theme)}>
+                    Regístrate aquí
+                  </Link>
+                </Typography>
+
+                <Typography variant="body2" sx={styles.linkText(theme)}>
+                  ¿Olvidaste tu contraseña?{' '}
+                  <Link to="/reset-password" style={styles.link(theme)}>
+                    Recuperar contraseña
+                  </Link>
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Container>
+      </Box>
+    </>
   );
 };
 

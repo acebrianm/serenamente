@@ -20,10 +20,12 @@ const Hero: React.FC = () => {
                 loop
                 playsInline
                 poster="/videos/hero-poster.jpg"
+                aria-label="Video promocional de la Conferencia Serenamente mostrando ambiente de bienestar y transformación personal"
+                title="Video promocional - Conferencia Serenamente"
               >
                 <source src="/videos/hero-video.mp4" type="video/mp4" />
                 <source src="/videos/hero-video.webm" type="video/webm" />
-                Tu navegador no soporta el elemento de video.
+                Tu navegador no soporta el elemento de video. Imagen promocional disponible.
               </Box>
             </Box>
           </Grid>
