@@ -9,8 +9,8 @@ body {
 
 /* Scroll performance optimizations */
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: 80px; /* Account for fixed navbar */
+  /* Note: scroll-behavior removed to prevent interference with route scroll-to-top */
 }
 
 /* Simple navbar positioning - no complex optimizations */

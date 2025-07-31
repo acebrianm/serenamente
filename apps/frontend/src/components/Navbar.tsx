@@ -34,13 +34,16 @@ const Navbar: React.FC = () => {
 
   const isHomePage = location.pathname === '/';
 
-  const menuItems = [
+  const allMenuItems = [
     { id: 'hero', label: 'Inicio' },
     { id: 'about', label: 'Acerca de' },
     { id: 'mission', label: 'Misión' },
     { id: 'tickets', label: 'Entradas' },
     { id: 'contact', label: 'Contacto' },
   ];
+
+  // Show only "Inicio" on non-root routes, all items on home page
+  const menuItems = isHomePage ? allMenuItems : [{ id: 'hero', label: 'Inicio' }];
 
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMobileMenuAnchor(event.currentTarget);
@@ -65,20 +68,8 @@ const Navbar: React.FC = () => {
         });
       }
     } else {
-      // If on other page, navigate to home then scroll to section
+      // If on other page, just navigate to home (no auto-scrolling)
       navigate('/');
-      setTimeout(() => {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          const elementPosition = element.offsetTop;
-          const offsetPosition = elementPosition - 80;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth',
-          });
-        }
-      }, 150);
     }
   };
 
@@ -96,20 +87,8 @@ const Navbar: React.FC = () => {
         });
       }
     } else {
-      // If on other page, navigate to home then scroll to section
+      // If on other page, just navigate to home (no auto-scrolling)
       navigate('/');
-      setTimeout(() => {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          const elementPosition = element.offsetTop;
-          const offsetPosition = elementPosition - 80;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth',
-          });
-        }
-      }, 150);
     }
   };
 
