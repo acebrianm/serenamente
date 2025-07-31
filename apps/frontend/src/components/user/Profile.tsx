@@ -11,7 +11,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
 import { useUpdateUser, useUser } from '../../hooks/useApi';
@@ -21,10 +21,6 @@ const Profile: React.FC = () => {
   const { user } = useAuth();
   const { data: userData } = useUser();
   const updateUserMutation = useUpdateUser();
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   // Use userData from query if available, fallback to auth context
   const currentUser = userData || user;

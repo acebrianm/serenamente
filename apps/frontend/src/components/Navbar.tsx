@@ -21,7 +21,6 @@ import {
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
-import { Link } from 'react-scroll';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navbar: React.FC = () => {
@@ -54,10 +53,16 @@ const Navbar: React.FC = () => {
   const handleMenuItemClick = (sectionId: string) => {
     handleMobileMenuClose();
     if (isHomePage) {
-      // If on home page, scroll to section
+      // If on home page, scroll to section with proper offset
       const element = document.getElementById(sectionId);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        const elementPosition = element.offsetTop;
+        const offsetPosition = elementPosition - 80; // Account for fixed navbar
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth',
+        });
       }
     } else {
       // If on other page, navigate to home then scroll to section
@@ -65,25 +70,46 @@ const Navbar: React.FC = () => {
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+          const elementPosition = element.offsetTop;
+          const offsetPosition = elementPosition - 80;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth',
+          });
         }
-      }, 100);
+      }, 150);
     }
   };
 
   const handleDesktopMenuItemClick = (sectionId: string) => {
     if (isHomePage) {
-      // Already handled by react-scroll Link component
-      return;
+      // Use native scroll with proper offset
+      const element = document.getElementById(sectionId);
+      if (element) {
+        const elementPosition = element.offsetTop;
+        const offsetPosition = elementPosition - 80; // Account for fixed navbar
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth',
+        });
+      }
     } else {
       // If on other page, navigate to home then scroll to section
       navigate('/');
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+          const elementPosition = element.offsetTop;
+          const offsetPosition = elementPosition - 80;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth',
+          });
         }
-      }, 100);
+      }, 150);
     }
   };
 
@@ -103,11 +129,18 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <AppBar position="fixed" sx={styles.appBar(theme)}>
+    <AppBar position="fixed" sx={styles.appBar(theme)} elevation={2}>
       <Toolbar>
-        <Typography variant="h6" component={RouterLink} to="/" sx={styles.brandName(theme)}>
-          Serenamente
-        </Typography>
+        <Box component={RouterLink} to="/" sx={styles.logoContainer}>
+          <Box
+            component="img"
+            src="/logo192.png"
+            alt="Serenamente - Conferencia de Bienestar Mental"
+            title="Ir a inicio"
+            loading="eager"
+            sx={styles.logo}
+          />
+        </Box>
 
         {isMobile ? (
           <>
@@ -128,21 +161,33 @@ const Navbar: React.FC = () => {
               sx={styles.mobileMenu}
             >
               {menuItems.map(item => (
-                <MenuItem key={item.id} onClick={() => handleMenuItemClick(item.id)}>
+                <MenuItem
+                  key={item.id}
+                  onClick={() => handleMenuItemClick(item.id)}
+                  sx={styles.mobileMenuItem}
+                >
                   <Typography sx={styles.mobileMenuItemText(theme)}>{item.label}</Typography>
                 </MenuItem>
               ))}
               {!isAuthenticated && (
                 <>
-                  <MenuItem onClick={handleMobileMenuClose}>
-                    <RouterLink to="/login" style={styles.mobileMenuLink}>
-                      <Typography sx={styles.mobileMenuItemText(theme)}>Iniciar Sesión</Typography>
-                    </RouterLink>
+                  <MenuItem
+                    onClick={() => {
+                      handleMobileMenuClose();
+                      navigate('/login');
+                    }}
+                    sx={styles.mobileMenuItem}
+                  >
+                    <Typography sx={styles.mobileMenuItemText(theme)}>Iniciar Sesión</Typography>
                   </MenuItem>
-                  <MenuItem onClick={handleMobileMenuClose}>
-                    <RouterLink to="/register" style={styles.mobileMenuLink}>
-                      <Typography sx={styles.mobileMenuItemText(theme)}>Registrarse</Typography>
-                    </RouterLink>
+                  <MenuItem
+                    onClick={() => {
+                      handleMobileMenuClose();
+                      navigate('/register');
+                    }}
+                    sx={styles.mobileMenuItem}
+                  >
+                    <Typography sx={styles.mobileMenuItemText(theme)}>Registrarse</Typography>
                   </MenuItem>
                 </>
               )}
@@ -150,27 +195,15 @@ const Navbar: React.FC = () => {
           </>
         ) : (
           <Box sx={styles.desktopMenuContainer}>
-            {menuItems.map(item =>
-              isHomePage ? (
-                <Link
-                  key={item.id}
-                  to={item.id}
-                  smooth={true}
-                  duration={500}
-                  style={styles.desktopMenuLink}
-                >
-                  <Button sx={styles.desktopMenuButton(theme)}>{item.label}</Button>
-                </Link>
-              ) : (
-                <Button
-                  key={item.id}
-                  onClick={() => handleDesktopMenuItemClick(item.id)}
-                  sx={styles.desktopMenuButton(theme)}
-                >
-                  {item.label}
-                </Button>
-              )
-            )}
+            {menuItems.map(item => (
+              <Button
+                key={item.id}
+                onClick={() => handleDesktopMenuItemClick(item.id)}
+                sx={styles.desktopMenuButton(theme)}
+              >
+                {item.label}
+              </Button>
+            ))}
           </Box>
         )}
 
@@ -189,27 +222,39 @@ const Navbar: React.FC = () => {
                 open={Boolean(userMenuAnchor)}
                 onClose={handleUserMenuClose}
               >
-                <MenuItem onClick={handleUserMenuClose}>
+                <MenuItem
+                  onClick={() => {
+                    handleUserMenuClose();
+                    navigate('/profile');
+                  }}
+                  sx={styles.userMenuItem}
+                >
                   <Person sx={styles.menuIcon} />
-                  <RouterLink to="/profile" style={styles.menuLink}>
-                    Mi Perfil
-                  </RouterLink>
+                  Mi Perfil
                 </MenuItem>
-                <MenuItem onClick={handleUserMenuClose}>
+                <MenuItem
+                  onClick={() => {
+                    handleUserMenuClose();
+                    navigate('/my-tickets');
+                  }}
+                  sx={styles.userMenuItem}
+                >
                   <Receipt sx={styles.menuIcon} />
-                  <RouterLink to="/my-tickets" style={styles.menuLink}>
-                    Mis Entradas
-                  </RouterLink>
+                  Mis Entradas
                 </MenuItem>
                 {isAdmin && (
-                  <MenuItem onClick={handleUserMenuClose}>
+                  <MenuItem
+                    onClick={() => {
+                      handleUserMenuClose();
+                      navigate('/admin/events');
+                    }}
+                    sx={styles.userMenuItem}
+                  >
                     <AdminPanelSettings sx={styles.menuIcon} />
-                    <RouterLink to="/admin/events" style={styles.menuLink}>
-                      Administración
-                    </RouterLink>
+                    Administración
                   </MenuItem>
                 )}
-                <MenuItem onClick={handleLogout}>
+                <MenuItem onClick={handleLogout} sx={styles.userMenuItem}>
                   <ExitToApp sx={styles.menuIcon} />
                   Cerrar Sesión
                 </MenuItem>
@@ -246,24 +291,41 @@ const Navbar: React.FC = () => {
 const styles = {
   appBar: (theme: any) => ({
     backgroundColor: theme.palette.background.paper,
-    backdropFilter: 'blur(10px)',
     boxShadow: theme.palette.custom.shadow.light,
+    zIndex: 1100,
   }),
-  brandName: (theme: any) => ({
+  logoContainer: {
     flexGrow: 1,
-    color: 'primary.main',
-    fontWeight: theme.custom.fontWeight.bold,
+    display: 'flex',
+    alignItems: 'center',
     textDecoration: 'none',
-    '&:hover': {
-      color: 'primary.dark',
+    cursor: 'pointer',
+  },
+  logo: {
+    height: {
+      xs: '32px', // Smaller on mobile
+      sm: '40px', // Medium on tablet
+      md: '48px', // Larger on desktop
     },
-  }),
+    width: 'auto',
+    maxHeight: '48px',
+    objectFit: 'contain',
+    transition: 'all 0.2s ease-in-out',
+    filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))',
+    '&:hover': {
+      transform: 'scale(1.05)',
+      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))',
+    },
+  },
   mobileMenuButton: {
     color: 'primary.main',
+    zIndex: 1200,
   },
   mobileMenu: {
+    zIndex: 1200,
     '& .MuiPaper-root': {
       minWidth: '200px',
+      zIndex: 1200,
     },
   },
   mobileMenuLink: {
@@ -271,6 +333,16 @@ const styles = {
     color: 'inherit',
     width: '100%',
     display: 'block',
+  },
+  mobileMenuItem: {
+    cursor: 'pointer',
+    width: '100%',
+    minHeight: '48px',
+    display: 'flex',
+    alignItems: 'center',
+    '&:hover': {
+      backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    },
   },
   mobileMenuItemText: (theme: any) => ({
     width: '100%',
@@ -281,9 +353,6 @@ const styles = {
     display: 'flex',
     gap: 2,
     mr: 2,
-  },
-  desktopMenuLink: {
-    textDecoration: 'none',
   },
   desktopMenuButton: (theme: any) => ({
     color: 'primary.main',
@@ -304,6 +373,15 @@ const styles = {
   menuLink: {
     textDecoration: 'none',
     color: 'inherit',
+  },
+  userMenuItem: {
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    '&:hover': {
+      backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    },
   },
   authButtons: {
     display: 'flex',

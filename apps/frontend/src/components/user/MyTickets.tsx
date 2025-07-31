@@ -15,16 +15,12 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useUserTickets } from '../../hooks/useApi';
 
 const MyTickets: React.FC = () => {
   const theme = useTheme();
   const { data: tickets = [], isLoading: loading, error } = useUserTickets();
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   if (loading) {
     return (

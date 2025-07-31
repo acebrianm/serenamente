@@ -1,9 +1,21 @@
 import { Box, Button, Container, Grid, Typography, useTheme } from '@mui/material';
 import React from 'react';
-import { Link } from 'react-scroll';
 
 const Hero: React.FC = () => {
   const theme = useTheme();
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const elementPosition = element.offsetTop;
+      const offsetPosition = elementPosition - 80; // Account for fixed navbar
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   return (
     <Box id="hero" sx={styles.heroContainer(theme)}>
@@ -50,17 +62,23 @@ const Hero: React.FC = () => {
 
               {/* CTA Buttons - always visible */}
               <Box sx={styles.buttonContainer}>
-                <Link to="tickets" smooth={true} duration={500} style={{ textDecoration: 'none' }}>
-                  <Button variant="contained" size="large" sx={styles.primaryButton(theme)}>
-                    Comprar Entradas
-                  </Button>
-                </Link>
+                <Button
+                  variant="contained"
+                  size="large"
+                  sx={styles.primaryButton(theme)}
+                  onClick={() => scrollToSection('tickets')}
+                >
+                  Comprar Entradas
+                </Button>
 
-                <Link to="about" smooth={true} duration={500} style={{ textDecoration: 'none' }}>
-                  <Button variant="outlined" size="large" sx={styles.secondaryButton(theme)}>
-                    Saber Más
-                  </Button>
-                </Link>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  sx={styles.secondaryButton(theme)}
+                  onClick={() => scrollToSection('about')}
+                >
+                  Saber Más
+                </Button>
               </Box>
             </Box>
           </Grid>

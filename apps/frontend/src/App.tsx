@@ -5,6 +5,7 @@ import Register from './components/auth/Register';
 import ResetPassword from './components/auth/ResetPassword';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
+import ScrollToTop from './components/layout/ScrollToTop';
 import PaymentSuccess from './components/payment/PaymentSuccess';
 import MyTickets from './components/user/MyTickets';
 import Profile from './components/user/Profile';
@@ -13,6 +14,7 @@ import HomePage from './pages/HomePage';
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
