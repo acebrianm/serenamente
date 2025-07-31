@@ -44,8 +44,8 @@ describe('Footer Component', () => {
   test('renders contact information', () => {
     renderWithTheme(<Footer />);
 
-    expect(screen.getByText('info@serenamente.com')).toBeInTheDocument();
-    expect(screen.getByText('+1 234 567 890')).toBeInTheDocument();
+    expect(screen.getByText('mentesanasiempree@gmail.com')).toBeInTheDocument();
+    expect(screen.getByText('+52 55 3223 9408')).toBeInTheDocument();
   });
 
   test('renders legal section', () => {

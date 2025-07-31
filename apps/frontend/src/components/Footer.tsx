@@ -6,11 +6,15 @@ const Footer: React.FC = () => {
   const theme = useTheme();
 
   const links = [
-    { label: 'Inicio', href: '#hero' },
-    { label: 'Acerca de', href: '#about' },
-    { label: 'Misión', href: '#mission' },
-    { label: 'Entradas', href: '#tickets' },
-    { label: 'Contacto', href: '#contact' },
+    { label: 'Inicio', href: '/' },
+    { label: 'Acerca de', href: '/#about' },
+    { label: 'Misión', href: '/#mission' },
+    { label: 'Entradas', href: '/#tickets' },
+    { label: 'Contacto', href: '/#contact' },
+    { label: 'Iniciar Sesión', href: '/login' },
+    { label: 'Crear Cuenta', href: '/register' },
+    { label: 'Mi Perfil', href: '/profile' },
+    { label: 'Mis Tickets', href: '/my-tickets' },
   ];
 
   const legalLinks = [
@@ -86,16 +90,16 @@ const Footer: React.FC = () => {
                 <Email sx={styles.contactIcon(theme)} />
                 <Typography
                   component="a"
-                  href="mailto:info@serenamente.com"
+                  href="mailto:mentesanasiempree@gmail.com"
                   sx={styles.contactLink(theme)}
                 >
-                  info@serenamente.com
+                  mentesanasiempree@gmail.com
                 </Typography>
               </Box>
               <Box sx={styles.contactItem}>
                 <Phone sx={styles.contactIcon(theme)} />
                 <Typography component="a" href="tel:+1234567890" sx={styles.contactLink(theme)}>
-                  +1 234 567 890
+                  +52 55 3223 9408
                 </Typography>
               </Box>
             </Box>
