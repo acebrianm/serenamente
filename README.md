@@ -1,53 +1,29 @@
-# 🎯 Serenamente Conference Website
+# 🎟️ Serenamente - Event Ticketing Platform
 
-A modern, responsive Single Page Application (SPA) built with React and Material-UI to promote the Serenamente conference focused on mental wellness and personal development.
+A modern event ticketing platform built with React, Node.js, and TypeScript in a monorepo architecture.
 
-## ✨ Features
-
-- **Responsive Design**: Optimized for all devices and screen sizes
-- **Spanish Language**: Full Spanish language interface for Latin American audience
-- **Smooth Scrolling**: Seamless navigation between sections
-- **Modern UI**: Clean, professional design with Material-UI components
-- **Interactive Elements**: Hover effects, animations, and transitions
-- **Contact Integration**: WhatsApp and email integration for easy communication
-- **Comprehensive Testing**: Full Jest unit test coverage for all components
-
-## 🗂 Project Structure
+## 🏗️ Monorepo Structure
 
 ```
-/src
-  /components
-    Navbar.tsx          # Navigation bar (Spanish)
-    Hero.tsx            # Hero section with CTA
-    About.tsx           # Conference information
-    Mission.tsx         # Mission and values
-    Tickets.tsx         # Pricing and ticket options
-    Contact.tsx         # Contact form and information
-    Footer.tsx          # Footer with social links
-    *.test.tsx          # Jest unit tests for each component
-  /theme
-    theme.ts            # MUI theme configuration
-  App.tsx               # Main application component
-  App.test.tsx          # Main app unit tests
-  index.tsx             # Application entry point
-  setupTests.ts         # Jest configuration
+serenamente/
+├── apps/
+│   ├── frontend/          # React.js application
+│   └── backend/           # Node.js/Express API
+├── packages/
+│   └── shared/            # Shared types and utilities
+├── package.json           # Root package.json with workspace scripts
+├── pnpm-workspace.yaml    # PNPM workspace configuration
+├── biome.json            # Shared code formatting and linting
+└── README.md             # This file
 ```
 
-## 🛠 Technologies Used
-
-- **React** (^19.1.0) - Frontend framework
-- **Material-UI** (^7.2.0) - UI component library
-- **@emotion/react** & **@emotion/styled** - CSS-in-JS styling
-- **react-scroll** - Smooth scrolling navigation
-- **TypeScript** - Type safety and better development experience
-- **Jest** & **@testing-library/react** - Unit testing framework and utilities
-
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- pnpm (or npm/yarn)
+- **Node.js** 18+ 
+- **pnpm** 8+ (recommended package manager)
+- **Docker & Docker Compose** (for database)
 
 ### Installation
 
@@ -57,167 +33,202 @@ A modern, responsive Single Page Application (SPA) built with React and Material
    cd serenamente
    ```
 
-2. **Install dependencies**
+2. **Install all dependencies**
    ```bash
    pnpm install
    ```
 
-3. **Start the development server**
+3. **Set up environment variables**
    ```bash
-   pnpm start
+   cp apps/backend/.env.example apps/backend/.env
+   # Edit apps/backend/.env with your actual values
    ```
 
-4. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+4. **Start the database**
+   ```bash
+   pnpm docker:up
+   ```
 
-### Available Scripts
+5. **Set up the database**
+   ```bash
+   pnpm db:migrate
+   pnpm db:generate
+   pnpm db:seed
+   ```
 
-- `pnpm start` - Runs the development server
-- `pnpm build` - Creates production build
-- `pnpm test` - Runs Jest test suite (64 unit tests)
-- `pnpm test -- --coverage` - Runs tests with coverage report
-- `pnpm eject` - Ejects from Create React App (not recommended)
+6. **Start development servers**
+   ```bash
+   pnpm dev
+   ```
 
-## 📱 Sections Overview
+   This starts both frontend (http://localhost:3000) and backend (http://localhost:3001)
 
-### 1. Hero Section
-- Eye-catching gradient background
-- Main conference title and tagline
-- Call-to-action buttons for tickets and information
-- Smooth entrance animations
+## 📋 Available Scripts
 
-### 2. About Section
-- Conference description and key features
-- Interactive feature cards with hover effects
-- Information about speakers, networking, and practical content
+### Root Level Scripts
 
-### 3. Mission Section
-- Conference mission and values
-- Three core pillars: Integral Wellbeing, Natural Connection, Personal Growth
-- Elegant design with gradient background
+- `pnpm dev` - Start both frontend and backend in development mode
+- `pnpm build` - Build both applications for production
+- `pnpm test` - Run tests for both applications
+- `pnpm lint` - Run linting for both applications
+- `pnpm format` - Format code using Biome
+- `pnpm check` - Run Biome checks (format + lint)
 
-### 4. Tickets Section
-- Two pricing tiers: General Access and VIP Experience
-- Feature comparison with checkmarks
-- Urgency messaging and special offers
-- Event information (date, location, duration)
+### Individual App Scripts
 
-### 5. Contact Section
-- Contact form with email integration
-- Multiple contact methods (WhatsApp, Email, Phone)
-- Interactive contact cards
-- Direct action buttons
+- `pnpm dev:frontend` - Start only frontend
+- `pnpm dev:backend` - Start only backend
+- `pnpm build:frontend` - Build only frontend
+- `pnpm build:backend` - Build only backend
 
-### 6. Footer
-- Social media links (Instagram, X, LinkedIn, Facebook)
-- Quick navigation links
-- Legal links and copyright information
-- Contact information
+### Database Scripts
 
-## 🧪 Testing
+- `pnpm db:migrate` - Run database migrations
+- `pnpm db:generate` - Generate Prisma client
+- `pnpm db:push` - Push schema to database
+- `pnpm db:seed` - Seed database with sample data
 
-The project includes comprehensive Jest unit testing with **64 test cases** covering:
+### Docker Scripts
 
-- **Component Rendering**: All components render correctly
-- **User Interactions**: Form submissions, button clicks, navigation
-- **Content Validation**: Text content, images, and links
-- **Responsive Behavior**: Mobile and desktop layouts
-- **Integration Testing**: Component interactions and data flow
+- `pnpm docker:up` - Start PostgreSQL database
+- `pnpm docker:down` - Stop database
+- `pnpm docker:logs` - View database logs
 
-### Running Tests
+## 🎯 Applications
 
-```bash
-# Run all tests
-pnpm test
+### Frontend (`apps/frontend`)
 
-# Run tests with coverage report
-pnpm test -- --coverage
+- **Framework**: React 19 with TypeScript
+- **UI Library**: Material-UI (MUI)
+- **Styling**: Emotion + CSS-in-JS
+- **Testing**: Jest + React Testing Library
+- **Code Quality**: Biome for formatting and linting
 
-# Run tests in watch mode
-pnpm test -- --watch
+### Backend (`apps/backend`)
+
+- **Framework**: Express.js with TypeScript
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT with bcrypt
+- **Payments**: Stripe integration
+- **Email**: Nodemailer with HTML templates
+- **Validation**: Zod for runtime validation
+- **Security**: Helmet, CORS, rate limiting
+
+### Shared (`packages/shared`)
+
+- Common TypeScript types and interfaces
+- Utility functions for dates, currency, validation
+- API constants and endpoints
+- Error and success message constants
+
+## 🛠️ Tech Stack
+
+### Frontend
+- React 19
+- TypeScript
+- Material-UI (MUI)
+- Emotion
+- React Testing Library
+
+### Backend
+- Node.js
+- Express.js
+- TypeScript
+- PostgreSQL
+- Prisma ORM
+- Stripe
+- Nodemailer
+- JWT
+- Zod
+
+### DevOps & Tools
+- Docker & Docker Compose
+- Biome (formatting & linting)
+- ESLint & Prettier (backend)
+- Husky (git hooks)
+- PNPM workspaces
+
+## 🔧 Configuration
+
+### Code Quality
+
+The monorepo uses **Biome** for consistent code formatting and linting across all packages:
+
+- Shared configuration in `biome.json`
+- Automatic formatting on save (if configured in your editor)
+- Pre-commit hooks with Husky
+
+### Environment Variables
+
+Backend environment variables are located in `apps/backend/.env`:
+
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/db
+
+# JWT
+JWT_SECRET=your-secret-key
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+
+# Email
+SMTP_HOST=smtp.gmail.com
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
 ```
 
-### Test Structure
+## 🏃‍♂️ Development Workflow
 
-Each component has its own test file following the pattern `ComponentName.test.tsx`:
-- `App.test.tsx` - Main application tests
-- `Navbar.test.tsx` - Navigation tests  
-- `Hero.test.tsx` - Hero section tests
-- `About.test.tsx` - About section tests
-- `Mission.test.tsx` - Mission section tests
-- `Tickets.test.tsx` - Tickets section tests
-- `Contact.test.tsx` - Contact form tests
-- `Footer.test.tsx` - Footer tests
-
-## 🎨 Design Features
-
-- **Color Scheme**: Primary blue (#0066ff) and secondary pink (#ff4081)
-- **Typography**: Inter font family for modern readability
-- **Animations**: Fade-in effects and smooth transitions
-- **Cards**: Elevated cards with hover effects
-- **Buttons**: Rounded buttons with hover animations
-- **Responsive Grid**: Adaptive layout for all screen sizes
-
-## 📞 Contact Integration
-
-- **WhatsApp**: Direct messaging with pre-filled text
-- **Email**: Mailto links with subject lines
-- **Phone**: Direct calling capability
-- **Contact Form**: Email form with validation
-
-## 🚢 Deployment
-
-To deploy the application:
-
-1. **Build for production**
+1. **Start development environment**:
    ```bash
-   pnpm build
+   pnpm docker:up    # Start database
+   pnpm dev          # Start both apps
    ```
 
-2. **Deploy the `build` folder** to your hosting service of choice:
-   - Netlify
-   - Vercel
-   - AWS S3
-   - GitHub Pages
-   - Any static hosting service
+2. **Make changes** in either `apps/frontend` or `apps/backend`
 
-## 🔧 Customization
+3. **Run quality checks**:
+   ```bash
+   pnpm check:fix    # Format and lint
+   pnpm test         # Run tests
+   ```
 
-### Theme Customization
-Edit `src/theme/theme.ts` to customize colors, typography, and other design tokens.
+4. **Database changes**:
+   ```bash
+   # After modifying prisma/schema.prisma
+   pnpm db:migrate
+   pnpm db:generate
+   ```
 
-### Content Updates
-Update the Spanish content directly in each component to modify text, pricing, contact information, etc.
+## 🚀 Deployment
 
-### Adding New Sections
-1. Create a new component in the `components` folder
-2. Create corresponding unit tests (`ComponentName.test.tsx`)
-3. Import and add the component to `App.tsx`
-4. Add navigation link in `Navbar.tsx`
-5. Update tests to include the new section
+### Frontend
+```bash
+pnpm build:frontend
+# Deploy contents of apps/frontend/build/
+```
 
-## 📊 Recent Updates
-
-### v2.0 (Latest)
-- ❌ **Removed**: Bilingual support (English/Spanish toggle)
-- ✅ **Added**: Comprehensive Jest unit testing (64 test cases)  
-- ✅ **Improved**: Simplified Spanish-only interface
-- ✅ **Enhanced**: Better code maintainability and testing coverage
-
-### Breaking Changes
-- Language toggle functionality has been removed
-- All components now display Spanish content only
-- Language-related props and interfaces have been eliminated
-
-## 🐛 Known Issues
-
-- Some TypeScript strict mode warnings with MUI v7 (does not affect functionality)
-- Smooth scrolling may not work on older browsers
-
-## 📝 License
-
-This project is private and proprietary to Serenamente Conference.
+### Backend
+```bash
+pnpm build:backend
+# Deploy apps/backend/dist/ with Node.js
+```
 
 ## 🤝 Contributing
 
-For contributions or questions, please contact the development team at info@serenamente.com.
+1. Create a feature branch
+2. Make your changes
+3. Run `pnpm check:fix` to format code
+4. Run `pnpm test` to ensure tests pass
+5. Create a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 🔗 Links
+
+- [Frontend Documentation](./apps/frontend/README.md)
+- [Backend Documentation](./apps/backend/README.md)
+- [API Documentation](./apps/backend/README.md#api-documentation)

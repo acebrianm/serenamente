@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.1.3/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -7,8 +7,11 @@
   },
   "files": {
     "includes": [
-      "src/**/*.{js,jsx,ts,tsx,json,css}",
-      "public/**/*.{js,jsx,ts,tsx,json,css}",
+      "apps/*/src/**/*.{js,jsx,ts,tsx,json,css}",
+      "apps/*/public/**/*.{js,jsx,ts,tsx,json,css}",
+      "packages/*/src/**/*.{js,jsx,ts,tsx,json}",
+      "apps/*/*.{js,jsx,ts,tsx,json}",
+      "packages/*/*.{js,jsx,ts,tsx,json}",
       "*.{js,jsx,ts,tsx,json}"
     ]
   },
@@ -38,7 +41,8 @@
         "noUnusedVariables": "warn"
       },
       "complexity": {
-        "noBannedTypes": "off"
+        "noBannedTypes": "off",
+        "useLiteralKeys": "off"
       }
     }
   },
