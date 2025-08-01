@@ -1,6 +1,7 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import EventManagement from './components/admin/EventManagement';
 import Login from './components/auth/Login';
+import OAuthCallback from './components/auth/OAuthCallback';
 import Register from './components/auth/Register';
 import ResetPassword from './components/auth/ResetPassword';
 import Layout from './components/layout/Layout';
@@ -21,6 +22,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="reset-password" element={<ResetPassword />} />
+          <Route path="auth/callback" element={<OAuthCallback />} />
           <Route path="payment-success" element={<PaymentSuccess />} />
 
           <Route

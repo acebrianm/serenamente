@@ -18,6 +18,7 @@ import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRegister } from '../../hooks/useApi';
 import SEOHelmet from '../SEOHelmet';
+import OAuthButtons from './OAuthButtons';
 
 const Register: React.FC = () => {
   const theme = useTheme();
@@ -204,6 +205,8 @@ const Register: React.FC = () => {
                   {registerMutation.isPending ? 'Creando cuenta...' : 'Crear Cuenta'}
                 </Button>
               </Box>
+
+              <OAuthButtons disabled={registerMutation.isPending} />
 
               <Box sx={styles.linksContainer}>
                 <Typography variant="body2" sx={styles.linkText(theme)}>

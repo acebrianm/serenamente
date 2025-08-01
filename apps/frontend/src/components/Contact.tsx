@@ -115,7 +115,7 @@ const Contact: React.FC = () => {
   ];
 
   return (
-    <Box id="contact" sx={styles.contactSection}>
+    <Box id="contact" sx={styles.contactSection(theme)}>
       <Container maxWidth="lg">
         <Typography variant="h2" component="h2" sx={styles.sectionTitle(theme)}>
           Contacto
@@ -257,11 +257,12 @@ const Contact: React.FC = () => {
 };
 
 const styles = {
-  contactSection: {
+  contactSection: (theme: any) => ({
     py: 8,
     backgroundColor: 'background.default',
     minHeight: '80vh',
-  },
+    borderTop: `4px solid ${theme.palette.divider}`,
+  }),
   sectionTitle: (theme: any) => ({
     textAlign: 'center',
     mb: 2,

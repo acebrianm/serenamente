@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLogin } from '../../hooks/useApi';
 import SEOHelmet from '../SEOHelmet';
+import OAuthButtons from './OAuthButtons';
 
 const Login: React.FC = () => {
   const theme = useTheme();
@@ -124,6 +125,8 @@ const Login: React.FC = () => {
                   {loginMutation.isPending ? 'Iniciando sesión...' : 'Iniciar Sesión'}
                 </Button>
               </Box>
+
+              <OAuthButtons disabled={loginMutation.isPending} />
 
               <Box sx={styles.linksContainer}>
                 <Typography variant="body2" sx={styles.linkText(theme)}>

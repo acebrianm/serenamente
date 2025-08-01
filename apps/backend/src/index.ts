@@ -9,7 +9,9 @@ dotenv.config({ path: envPath });
 import cors from 'cors';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
+import expressSession from 'express-session';
 import helmet from 'helmet';
+import passport from './config/passport';
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
 // Import routes
 import authRoutes from './routes/authRoutes';
@@ -47,6 +49,23 @@ app.use(
     credentials: true,
   })
 );
+
+// Session middleware for passport
+app.use(
+  expressSession({
+    secret: process.env['SESSION_SECRET'] || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env['NODE_ENV'] === 'production',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
+
+// Initialize passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Body parsing middleware
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' })); // Stripe webhook needs raw body

@@ -11,16 +11,19 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  firstName String
-  lastName  String
-  email     String   @unique
-  password  String
-  phone     String?
-  role      Role     @default(USER)
-  isActive  Boolean  @default(true)
-  tickets   Ticket[]
-  createdAt DateTime @default(now())
+  id              String   @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String   @unique
+  password        String?
+  phone           String?
+  role            Role     @default(USER)
+  isActive        Boolean  @default(true)
+  googleId        String?  @unique
+  provider        AuthProvider @default(LOCAL)
+  profilePicture  String?
+  tickets         Ticket[]
+  createdAt       DateTime @default(now())
 }
 
 model Ticket {
@@ -51,4 +54,9 @@ model Event {
 enum Role {
   USER
   ADMIN
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
 }

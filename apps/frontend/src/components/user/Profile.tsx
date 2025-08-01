@@ -199,6 +199,7 @@ const styles = {
     borderRadius: theme.custom.borderRadius.large,
     boxShadow: theme.palette.custom.shadow.medium,
     backgroundColor: theme.palette.background.paper,
+    padding: theme.custom.spacing.xs,
   }),
   cardContent: {
     p: 4,

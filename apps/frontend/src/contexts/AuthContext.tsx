@@ -1,11 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { queryKeys } from '../hooks/useApi';
 import { User } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  login: (user: User, token: string) => void;
   logout: () => void;
   loading: boolean;
   isAuthenticated: boolean;
@@ -42,18 +43,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(false);
   }, [queryClient]);
 
-  const logout = () => {
+  const login = useCallback(
+    (user: User, token: string) => {
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      setToken(token);
+      setUser(user);
+      // Set user data in query cache
+      queryClient.setQueryData(queryKeys.user, user);
+    },
+    [queryClient]
+  );
+
+  const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setToken(null);
     setUser(null);
     // Clear all cached data
     queryClient.clear();
-  };
+  }, [queryClient]);
 
   const value: AuthContextType = {
     user,
     token,
+    login,
     logout,
     loading,
     isAuthenticated: !!token && !!user,

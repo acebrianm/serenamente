@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import passport from 'passport';
 import { emailService } from '../services/emailService';
 import { prisma } from '../utils/database';
 import { generateToken } from '../utils/jwt';
@@ -83,7 +84,15 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Verify password
+    // Verify password - skip for OAuth users
+    if (user.provider !== 'LOCAL' || !user.password) {
+      res.status(401).json({
+        error: 'OAUTH_LOGIN_REQUIRED',
+        message: 'Esta cuenta requiere inicio de sesión con Google o Apple',
+      });
+      return;
+    }
+
     const isValidPassword = await comparePassword(password, user.password);
 
     if (!isValidPassword) {
@@ -140,6 +149,58 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
     res.status(500).json({
       error: 'INTERNAL_SERVER_ERROR',
       message: 'Ocurrió un error al procesar la solicitud',
+    });
+  }
+};
+
+// Google OAuth
+export const googleAuth = passport.authenticate('google', {
+  scope: ['profile', 'email'],
+});
+
+export const googleCallback = (req: Request, res: Response, next: NextFunction) => {
+  passport.authenticate('google', { session: false }, (err: any, authData: any) => {
+    if (err) {
+      console.error('Google OAuth error:', err);
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_error`);
+    }
+
+    if (!authData) {
+      return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+    }
+
+    const { user, token } = authData;
+
+    // Redirect to frontend with token
+    res.redirect(
+      `${process.env.FRONTEND_URL}/auth/callback?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`
+    );
+  })(req, res, next);
+};
+
+// OAuth token exchange endpoint
+export const oauthTokenExchange = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      res.status(400).json({
+        error: 'TOKEN_REQUIRED',
+        message: 'Token is required',
+      });
+      return;
+    }
+
+    // Token validation would happen here if needed
+    res.json({
+      message: 'Token exchange successful',
+      token,
+    });
+  } catch (error) {
+    console.error('Error in token exchange:', error);
+    res.status(500).json({
+      error: 'INTERNAL_SERVER_ERROR',
+      message: 'Ocurrió un error en el intercambio de token',
     });
   }
 };
