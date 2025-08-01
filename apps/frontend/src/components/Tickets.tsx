@@ -26,9 +26,6 @@ const Tickets: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
-  // Filter active events
-  console.log('events: ', events);
-
   const handlePurchase = (event: Event) => {
     if (!isAuthenticated) {
       window.location.href = '/login';
@@ -88,7 +85,7 @@ const Tickets: React.FC = () => {
 
             <Grid container spacing={4} sx={{ mb: 6 }}>
               {events.map((event, _index) => (
-                <Grid size={{ xs: 12, md: 6, lg: 4 }} key={event.id}>
+                <Grid size={{ xs: 12 }} key={event.id}>
                   <Card sx={styles.eventCard(theme)}>
                     <CardContent sx={styles.eventCardContent}>
                       <Typography variant="h4" component="h3" sx={styles.eventName(theme)}>
@@ -142,10 +139,6 @@ const Tickets: React.FC = () => {
             </Grid>
           </>
         )}
-
-        <Typography variant="body1" sx={styles.guaranteeText}>
-          Garantía de satisfacción del 100% o devolución del dinero
-        </Typography>
       </Container>
 
       <Dialog open={paymentDialogOpen} onClose={handleClosePaymentDialog} maxWidth="lg" fullWidth>
@@ -218,7 +211,7 @@ const styles = {
   }),
   eventCard: (theme: any) => ({
     height: '100%',
-    borderRadius: theme.custom.borderRadius.large,
+    borderRadius: theme.custom.borderRadius.medium,
     transition: 'transform 0.3s ease, box-shadow 0.3s ease',
     boxShadow: theme.palette.custom.shadow.medium,
     '&:hover': {
@@ -273,12 +266,6 @@ const styles = {
     borderRadius: theme.custom.borderRadius.medium,
     fontWeight: theme.custom.fontWeight.bold,
   }),
-  guaranteeText: {
-    textAlign: 'center',
-    color: 'text.secondary',
-    fontStyle: 'italic',
-    mt: 4,
-  },
   dialogTitle: (theme: any) => ({
     color: theme.palette.primary.main,
     fontWeight: theme.custom.fontWeight.bold,
