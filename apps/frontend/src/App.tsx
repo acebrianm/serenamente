@@ -7,6 +7,8 @@ import ResetPassword from './components/auth/ResetPassword';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import ScrollToTop from './components/layout/ScrollToTop';
+import PaymentError from './components/payment/PaymentError';
+import PaymentLoading from './components/payment/PaymentLoading';
 import PaymentSuccess from './components/payment/PaymentSuccess';
 import MyTickets from './components/user/MyTickets';
 import Profile from './components/user/Profile';
@@ -23,7 +25,9 @@ function App() {
           <Route path="register" element={<Register />} />
           <Route path="reset-password" element={<ResetPassword />} />
           <Route path="auth/callback" element={<OAuthCallback />} />
+          <Route path="payment-loading" element={<PaymentLoading />} />
           <Route path="payment-success" element={<PaymentSuccess />} />
+          <Route path="payment-error" element={<PaymentError />} />
 
           <Route
             path="profile"

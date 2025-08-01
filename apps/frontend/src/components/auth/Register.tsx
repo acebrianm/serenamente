@@ -16,6 +16,7 @@ import {
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { useRegister } from '../../hooks/useApi';
 import SEOHelmet from '../SEOHelmet';
 import OAuthButtons from './OAuthButtons';
@@ -23,6 +24,7 @@ import OAuthButtons from './OAuthButtons';
 const Register: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { login } = useAuth();
   const registerMutation = useRegister();
 
   const [formData, setFormData] = useState({
@@ -60,7 +62,9 @@ const Register: React.FC = () => {
         phone: formData.phone || undefined,
       },
       {
-        onSuccess: () => {
+        onSuccess: data => {
+          // Update AuthContext state immediately
+          login(data.user, data.token);
           toast.success('¡Cuenta creada exitosamente! Bienvenido a Serenamente');
           navigate('/');
         },

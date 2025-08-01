@@ -21,6 +21,9 @@ const Layout: React.FC = () => {
         </div>
         <Toaster
           position="top-right"
+          containerStyle={{
+            top: 80, // Position below navbar
+          }}
           toastOptions={{
             duration: 4000,
             style: {

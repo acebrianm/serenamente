@@ -58,9 +58,6 @@ export const useLogin = () => {
     onSuccess: data => {
       // Cache user data
       queryClient.setQueryData(queryKeys.user, data.user);
-      // Store token
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
     },
   });
 };
@@ -74,9 +71,6 @@ export const useRegister = () => {
     onSuccess: data => {
       // Cache user data
       queryClient.setQueryData(queryKeys.user, data.user);
-      // Store token
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
     },
   });
 };

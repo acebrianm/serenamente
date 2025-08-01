@@ -137,13 +137,30 @@ export const updateTicketSchema = z.object({
 });
 
 // Payment validation schemas
-export const createPaymentSchema = z.object({
-  eventId: z.string().uuid('ID de evento inválido'),
-  nameOfAttendee: z
-    .string()
-    .min(2, 'El nombre del asistente debe tener al menos 2 caracteres')
-    .max(100, 'El nombre no puede exceder 100 caracteres'),
-});
+export const createPaymentSchema = z
+  .object({
+    eventId: z.string().uuid('ID de evento inválido'),
+    // Support both old and new formats
+    nameOfAttendee: z
+      .string()
+      .min(2, 'El nombre del asistente debe tener al menos 2 caracteres')
+      .max(100, 'El nombre no puede exceder 100 caracteres')
+      .optional(),
+    attendees: z
+      .array(
+        z
+          .string()
+          .min(2, 'El nombre del asistente debe tener al menos 2 caracteres')
+          .max(100, 'El nombre no puede exceder 100 caracteres')
+      )
+      .min(1, 'Al menos un asistente es requerido')
+      .max(10, 'No se pueden agregar más de 10 asistentes')
+      .optional(),
+  })
+  .refine(data => data.nameOfAttendee || (data.attendees && data.attendees.length > 0), {
+    message: 'Debe proporcionar al menos un asistente (nameOfAttendee o attendees)',
+    path: ['attendees'],
+  });
 
 export const confirmPaymentSchema = z.object({
   paymentIntentId: z.string().min(1, 'ID de intención de pago requerido'),

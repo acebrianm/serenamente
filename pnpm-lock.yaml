@@ -156,6 +156,9 @@ importers:
       '@mui/system':
         specifier: ^7.2.0
         version: 7.2.0(@emotion/react@11.14.0)(@emotion/styled@11.14.1)(@types/react@19.1.9)(react@19.1.1)
+      '@stripe/react-stripe-js':
+        specifier: ^3.8.1
+        version: 3.8.1(@stripe/stripe-js@7.7.0)(react-dom@19.1.1)(react@19.1.1)
       '@stripe/stripe-js':
         specifier: ^7.7.0
         version: 7.7.0
@@ -3274,6 +3277,19 @@ packages:
     resolution: {integrity: sha512-OAPJUAtgeINhh/TAlUID4QTs53Njm7xzddaVlEs/SXwgtiD1tW22zAB/W1wdqfrpmikgaWQ9Fw6Ws+hsiRm5Vg==}
     dependencies:
       '@sinonjs/commons': 1.8.6
+    dev: false
+
+  /@stripe/react-stripe-js@3.8.1(@stripe/stripe-js@7.7.0)(react-dom@19.1.1)(react@19.1.1):
+    resolution: {integrity: sha512-BExESIwXDwZgUqFmWj046BGpsqK4vNaBCdcmRvagQzOovjO2aBAt8rofW47K1TJRnt3iTH5dciBdHJ7ZA958ng==}
+    peerDependencies:
+      '@stripe/stripe-js': '>=1.44.1 <8.0.0'
+      react: '>=16.8.0 <20.0.0'
+      react-dom: '>=16.8.0 <20.0.0'
+    dependencies:
+      '@stripe/stripe-js': 7.7.0
+      prop-types: 15.8.1
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
     dev: false
 
   /@stripe/stripe-js@7.7.0:

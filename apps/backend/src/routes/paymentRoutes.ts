@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import {
+  checkPaymentStatus,
   confirmPaymentIntent,
   createPayment,
-  webhookHandler,
 } from '../controllers/paymentController';
 import { authenticate } from '../middlewares/auth';
 import { validateBody } from '../middlewares/validation';
@@ -23,8 +23,8 @@ router.post(
   validateBody(confirmPaymentSchema),
   confirmPaymentIntent
 );
+router.get('/status/:paymentIntentId', authenticate, checkPaymentStatus);
 
-// Webhook route (no authentication needed)
-router.post('/webhook', webhookHandler);
+// Note: Webhook route is handled directly in main app before body parsing middleware
 
 export default router;

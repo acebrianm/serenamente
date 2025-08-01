@@ -15,6 +15,7 @@ import {
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { useLogin } from '../../hooks/useApi';
 import SEOHelmet from '../SEOHelmet';
 import OAuthButtons from './OAuthButtons';
@@ -22,6 +23,7 @@ import OAuthButtons from './OAuthButtons';
 const Login: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const { login } = useAuth();
   const loginMutation = useLogin();
 
   const [formData, setFormData] = useState({
@@ -41,13 +43,18 @@ const Login: React.FC = () => {
     e.preventDefault();
 
     loginMutation.mutate(formData, {
-      onSuccess: () => {
+      onSuccess: data => {
+        // Update AuthContext state immediately
+        login(data.user, data.token);
         toast.success('¡Bienvenido de vuelta!');
+        loginMutation.reset();
         navigate('/');
       },
       onError: (err: any) => {
-        const errorMessage = err.response?.data?.message || 'Error al iniciar sesión';
+        const errorMessage =
+          err.response?.data?.message || err.message || 'Error al iniciar sesión';
         toast.error(errorMessage);
+        loginMutation.reset();
       },
     });
   };
@@ -76,6 +83,7 @@ const Login: React.FC = () => {
               {loginMutation.error && (
                 <Alert severity="error" sx={styles.errorAlert}>
                   {(loginMutation.error as any)?.response?.data?.message ||
+                    (loginMutation.error as any)?.message ||
                     'Error al iniciar sesión'}
                 </Alert>
               )}

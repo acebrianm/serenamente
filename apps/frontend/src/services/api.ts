@@ -72,6 +72,16 @@ export interface AuthResponse {
 export interface PaymentIntent {
   clientSecret: string;
   paymentIntentId: string;
+  amount: number; // Total amount
+  currency: string;
+  eventName: string;
+  ticketCount: number;
+  pricePerTicket: number;
+}
+
+export interface ApiPaymentResponse {
+  message: string;
+  payment: PaymentIntent;
 }
 
 // API Response interfaces that match backend responses
@@ -246,8 +256,8 @@ export const ticketService = {
 export const paymentService = {
   createPaymentIntent: async (data: {
     eventId: string;
-    nameOfAttendee: string;
-  }): Promise<PaymentIntent> => {
+    attendees: string[]; // Array of attendee names
+  }): Promise<ApiPaymentResponse> => {
     const response = await api.post('/payments/create-payment-intent', data);
     return response.data;
   },
@@ -255,8 +265,8 @@ export const paymentService = {
   confirmPayment: async (data: {
     paymentIntentId: string;
     eventId: string;
-    nameOfAttendee: string;
-  }): Promise<{ success: boolean; ticket?: Ticket }> => {
+    attendees: string[];
+  }): Promise<{ success: boolean; tickets?: Ticket[] }> => {
     const response = await api.post('/payments/confirm-payment', data);
     return response.data;
   },

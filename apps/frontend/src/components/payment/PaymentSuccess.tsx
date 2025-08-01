@@ -1,6 +1,6 @@
 import { CheckCircle, Download, Home } from '@mui/icons-material';
 import { Box, Button, Card, CardContent, Container, Typography, useTheme } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useConfirmPayment } from '../../hooks/useApi';
@@ -11,38 +11,58 @@ const PaymentSuccess: React.FC = () => {
   const confirmPaymentMutation = useConfirmPayment();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [hasConfirmed, setHasConfirmed] = useState(false);
 
   const eventId = searchParams.get('eventId');
-  const nameOfAttendee = searchParams.get('nameOfAttendee');
+  const attendeesParam = searchParams.get('attendees');
   const paymentIntentId = searchParams.get('payment_intent');
 
+  // Memoize attendees to prevent re-creation on every render
+  const attendees = useMemo(() => {
+    try {
+      return attendeesParam ? JSON.parse(decodeURIComponent(attendeesParam)) : [];
+    } catch (error) {
+      console.error('Error parsing attendees:', error);
+      return [];
+    }
+  }, [attendeesParam]);
+
   useEffect(() => {
-    if (!eventId || !nameOfAttendee || !paymentIntentId) {
+    // Prevent multiple confirmations
+    if (hasConfirmed) return;
+
+    if (!eventId || !attendees.length || !paymentIntentId) {
       setError('Información de pago incompleta');
       return;
     }
+
+    setHasConfirmed(true);
 
     confirmPaymentMutation.mutate(
       {
         paymentIntentId,
         eventId,
-        nameOfAttendee,
+        attendees,
       },
       {
         onSuccess: result => {
           if (result.success) {
             setSuccess(true);
-            toast.success('¡Pago confirmado exitosamente! Tu entrada ha sido reservada.');
+            const ticketCount = attendees.length;
+            toast.success(
+              `¡Pago confirmado exitosamente! ${ticketCount} entrada${ticketCount > 1 ? 's han' : ' ha'} sido reservada${ticketCount > 1 ? 's' : ''}.`
+            );
           } else {
             setError('Error al confirmar el pago');
           }
         },
         onError: (err: any) => {
           setError(err.response?.data?.message || 'Error al procesar la confirmación');
+          setHasConfirmed(false); // Allow retry on error
         },
       }
     );
-  }, [eventId, nameOfAttendee, paymentIntentId, confirmPaymentMutation]);
+  }, [eventId, attendees, paymentIntentId, hasConfirmed]);
 
   if (confirmPaymentMutation.isPending) {
     return (
@@ -110,8 +130,17 @@ const PaymentSuccess: React.FC = () => {
             </Typography>
 
             <Typography variant="body1" sx={styles.confirmationText(theme)}>
-              Tu entrada ha sido confirmada para <strong>{nameOfAttendee}</strong>. Recibirás un
-              correo electrónico con los detalles de confirmación.
+              {attendees.length === 1 ? (
+                <>
+                  Tu entrada ha sido confirmada para <strong>{attendees[0]}</strong>.
+                </>
+              ) : (
+                <>
+                  Tus {attendees.length} entradas han sido confirmadas para:{' '}
+                  <strong>{attendees.join(', ')}</strong>.
+                </>
+              )}{' '}
+              Recibirás un correo electrónico con los detalles de confirmación.
             </Typography>
 
             <Box sx={styles.actionButtons}>

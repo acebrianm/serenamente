@@ -1,5 +1,6 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { emailService } from '../services/emailService';
 import { prisma } from '../utils/database';
 import { generateToken } from '../utils/jwt';
 
@@ -30,7 +31,7 @@ passport.use(
               data: {
                 googleId: profile.id,
                 provider: 'GOOGLE',
-                profilePicture: profile.photos?.[0]?.value,
+                profilePicture: profile.photos?.[0]?.value || null,
               },
             });
           }
@@ -42,8 +43,13 @@ passport.use(
               lastName: profile.name?.familyName || '',
               email: email,
               provider: 'GOOGLE',
-              profilePicture: profile.photos?.[0]?.value,
+              profilePicture: profile.photos?.[0]?.value || null,
             },
+          });
+
+          // Send welcome email for new Google users (async, don't wait)
+          emailService.sendWelcomeEmail(user).catch(error => {
+            console.error('Error enviando email de bienvenida a usuario de Google:', error);
           });
         }
 

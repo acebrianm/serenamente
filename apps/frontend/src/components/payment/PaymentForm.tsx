@@ -1,4 +1,4 @@
-import { CreditCard, Lock, Person } from '@mui/icons-material';
+import { Add, CreditCard, Delete, Person } from '@mui/icons-material';
 import {
   Alert,
   Box,
@@ -7,10 +7,12 @@ import {
   CardContent,
   Container,
   Grid,
+  IconButton,
   TextField,
   Typography,
   useTheme,
 } from '@mui/material';
+import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
@@ -19,21 +21,166 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useCreatePaymentIntent } from '../../hooks/useApi';
 import { Event } from '../../services/api';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || '');
+// Debug environment variable
+console.log(
+  'Stripe Publishable Key:',
+  process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY ? 'Present' : 'Missing'
+);
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || '').catch(
+  error => {
+    console.error('Failed to load Stripe:', error);
+    return null;
+  }
+);
 
 interface PaymentFormProps {
   event: Event;
 }
+
+interface CheckoutFormProps {
+  event: Event;
+  attendees: string[];
+  clientSecret: string;
+  totalAmount: number;
+}
+
+const CheckoutForm: React.FC<CheckoutFormProps> = ({
+  event,
+  attendees,
+  clientSecret,
+  totalAmount,
+}) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const theme = useTheme();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState('');
+
+  // Debug Stripe loading
+  React.useEffect(() => {
+    console.log('Stripe status:', {
+      stripe: !!stripe,
+      elements: !!elements,
+      clientSecret: !!clientSecret,
+    });
+  }, [stripe, elements, clientSecret]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      setError('Stripe no está disponible. Por favor recarga la página.');
+      return;
+    }
+
+    setIsProcessing(true);
+    setError('');
+
+    try {
+      const { error: confirmError } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/payment-loading?eventId=${event.id}&attendees=${encodeURIComponent(JSON.stringify(attendees))}`,
+        },
+      });
+
+      if (confirmError) {
+        setError(confirmError.message || 'Error procesando el pago');
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error('Error during payment:', error);
+      setError('Ocurrió un error inesperado durante el pago');
+      setIsProcessing(false);
+    }
+  };
+
+  // Show loading state while Stripe is initializing
+  if (!stripe || !elements) {
+    return (
+      <Box sx={styles.form}>
+        <Typography variant="body1" sx={{ textAlign: 'center', py: 4 }}>
+          Cargando formulario de pago...
+        </Typography>
+      </Box>
+    );
+  }
+
+  return (
+    <Box component="form" onSubmit={handleSubmit} sx={styles.form}>
+      {error && (
+        <Alert severity="error" sx={styles.errorAlert}>
+          {error}
+        </Alert>
+      )}
+
+      {/* Stripe PaymentElement with payment method options */}
+      <PaymentElement
+        options={{
+          layout: {
+            type: 'tabs',
+            defaultCollapsed: false,
+            radios: false,
+            spacedAccordionItems: true,
+          },
+          fields: {
+            billingDetails: 'auto',
+          },
+        }}
+      />
+
+      <Box sx={styles.summary(theme)}>
+        <Typography variant="body1" sx={styles.summaryText}>
+          {attendees.length} entrada{attendees.length > 1 ? 's' : ''} × ${event.price} ={' '}
+          <strong>${totalAmount}</strong>
+        </Typography>
+      </Box>
+
+      <Button
+        type="submit"
+        fullWidth
+        variant="contained"
+        size="large"
+        disabled={!stripe || isProcessing}
+        sx={styles.payButton}
+      >
+        {isProcessing ? 'Procesando pago...' : `Pagar $${totalAmount}`}
+      </Button>
+    </Box>
+  );
+};
 
 const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const createPaymentIntentMutation = useCreatePaymentIntent();
-  const [nameOfAttendee, setNameOfAttendee] = useState('');
+
+  const [attendees, setAttendees] = useState<string[]>(['']);
+  const [clientSecret, setClientSecret] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const addAttendee = () => {
+    if (attendees.length < 10) {
+      setAttendees([...attendees, '']);
+    }
+  };
+
+  const removeAttendee = (index: number) => {
+    if (attendees.length > 1) {
+      const newAttendees = attendees.filter((_, i) => i !== index);
+      setAttendees(newAttendees);
+    }
+  };
+
+  const updateAttendee = (index: number, value: string) => {
+    const newAttendees = [...attendees];
+    newAttendees[index] = value;
+    setAttendees(newAttendees);
+  };
+
+  const handleAttendeesSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!isAuthenticated) {
@@ -41,53 +188,35 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
       return;
     }
 
-    if (!nameOfAttendee.trim()) {
-      setError('Por favor ingresa el nombre del asistente');
+    const validAttendees = attendees.filter(name => name.trim().length > 0);
+
+    if (validAttendees.length === 0) {
+      setError('Por favor ingresa al menos un nombre de asistente');
       return;
     }
 
     setError('');
 
+    console.log('Sending payment intent request:', {
+      eventId: event.id,
+      attendees: validAttendees.map(name => name.trim()),
+    });
+
     createPaymentIntentMutation.mutate(
       {
         eventId: event.id,
-        nameOfAttendee: nameOfAttendee.trim(),
+        attendees: validAttendees.map(name => name.trim()),
       },
       {
-        onSuccess: async data => {
-          try {
-            const stripe = await stripePromise;
-            if (!stripe) {
-              throw new Error('Stripe no se pudo cargar');
-            }
-
-            const { clientSecret, paymentIntentId } = data;
-
-            toast.loading('Procesando pago...', { id: 'payment-processing' });
-
-            const { error: stripeError } = await stripe.confirmPayment({
-              clientSecret,
-              confirmParams: {
-                return_url: `${window.location.origin}/payment-success?eventId=${event.id}&nameOfAttendee=${encodeURIComponent(nameOfAttendee)}&paymentIntentId=${paymentIntentId}`,
-              },
-            });
-
-            toast.dismiss('payment-processing');
-
-            if (stripeError) {
-              const errorMessage = stripeError.message || 'Error al procesar el pago';
-              setError(errorMessage);
-              toast.error(errorMessage);
-            }
-          } catch (_err: any) {
-            toast.dismiss('payment-processing');
-            const errorMessage = 'Error al procesar el pago con Stripe';
-            setError(errorMessage);
-            toast.error(errorMessage);
-          }
+        onSuccess: data => {
+          console.log('Payment intent created:', data);
+          setClientSecret(data.payment.clientSecret);
+          setAttendees(validAttendees);
         },
         onError: (err: any) => {
-          const errorMessage = err.response?.data?.message || 'Error al procesar el pago';
+          console.error('Payment intent error:', err);
+          const errorMessage =
+            err.response?.data?.message || err.message || 'Error al procesar el pago';
           setError(errorMessage);
           toast.error(errorMessage);
         },
@@ -95,21 +224,29 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
     );
   };
 
+  const resetForm = () => {
+    setClientSecret('');
+    setError('');
+  };
+
+  const totalAmount = attendees.filter(name => name.trim().length > 0).length * event.price;
+
   return (
-    <Box sx={styles.paymentContainer(theme)}>
-      <Container maxWidth="md">
-        <Typography variant="h3" component="h1" sx={styles.pageTitle(theme)}>
-          Comprar Entrada
+    <Box sx={styles.container(theme)}>
+      <Container maxWidth="lg">
+        <Typography variant="h3" component="h1" sx={styles.title(theme)}>
+          Comprar Entradas
         </Typography>
 
         <Grid container spacing={4}>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Card sx={styles.eventCard(theme)}>
+          {/* Event Information */}
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Card sx={styles.card(theme)}>
               <CardContent>
                 <Typography variant="h5" sx={styles.eventTitle(theme)}>
                   {event.name}
                 </Typography>
-                <Typography variant="body1" sx={styles.eventDate(theme)}>
+                <Typography variant="body1" sx={styles.eventDate}>
                   {new Date(event.date).toLocaleDateString('es-ES', {
                     weekday: 'long',
                     year: 'numeric',
@@ -122,22 +259,28 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
                 <Typography variant="body2" sx={styles.eventAddress(theme)}>
                   {event.address}
                 </Typography>
-                <Box sx={styles.priceContainer(theme)}>
-                  <Typography variant="h4" sx={styles.eventPrice(theme)}>
-                    ${event.price}
+                <Box sx={styles.priceBox(theme)}>
+                  <Typography variant="h6" sx={styles.price}>
+                    ${event.price} por entrada
                   </Typography>
+                  {totalAmount > 0 && (
+                    <Typography variant="h4" sx={styles.total(theme)}>
+                      Total: ${totalAmount}
+                    </Typography>
+                  )}
                 </Box>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Card sx={styles.paymentCard(theme)}>
+          {/* Attendees Form */}
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Card sx={clientSecret ? styles.cardDisabled(theme) : styles.card(theme)}>
               <CardContent>
-                <Box sx={styles.paymentHeader}>
-                  <CreditCard sx={styles.paymentIcon(theme)} />
-                  <Typography variant="h5" sx={styles.paymentTitle(theme)}>
-                    Información de Pago
+                <Box sx={styles.header}>
+                  <Person sx={styles.icon(theme)} />
+                  <Typography variant="h5" sx={styles.cardTitle(theme)}>
+                    Información de Asistentes
                   </Typography>
                 </Box>
 
@@ -149,48 +292,118 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
                   </Alert>
                 )}
 
-                <Box component="form" onSubmit={handleSubmit} sx={styles.form}>
-                  <TextField
-                    fullWidth
-                    label="Nombre del Asistente"
-                    value={nameOfAttendee}
-                    onChange={e => setNameOfAttendee(e.target.value)}
-                    required
-                    variant="outlined"
-                    sx={styles.textField(theme)}
-                    InputProps={{
-                      startAdornment: <Person sx={styles.inputIcon(theme)} />,
-                    }}
-                    helperText="Nombre completo de la persona que asistirá al evento"
-                  />
+                <Box component="form" onSubmit={handleAttendeesSubmit} sx={styles.form}>
+                  <Typography variant="body2" sx={styles.helper(theme)}>
+                    Nombres de las personas que asistirán:
+                  </Typography>
 
-                  <Box sx={styles.securityNote(theme)}>
-                    <Lock sx={styles.lockIcon(theme)} />
-                    <Typography variant="body2" sx={styles.securityText(theme)}>
-                      Tus datos de pago están protegidos con encriptación SSL
-                    </Typography>
-                  </Box>
+                  {attendees.map((attendee, index) => (
+                    <Box key={index} sx={styles.attendeeRow}>
+                      <TextField
+                        fullWidth
+                        label={`Asistente ${index + 1}`}
+                        value={attendee}
+                        onChange={e => updateAttendee(index, e.target.value)}
+                        variant="outlined"
+                        disabled={!!clientSecret}
+                        InputProps={{
+                          startAdornment: <Person sx={styles.inputIcon(theme)} />,
+                        }}
+                      />
+                      {attendees.length > 1 && !clientSecret && (
+                        <IconButton
+                          onClick={() => removeAttendee(index)}
+                          sx={styles.removeButton(theme)}
+                        >
+                          <Delete />
+                        </IconButton>
+                      )}
+                    </Box>
+                  ))}
 
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    size="large"
-                    disabled={createPaymentIntentMutation.isPending}
-                    sx={styles.payButton(theme)}
-                  >
-                    {createPaymentIntentMutation.isPending
-                      ? 'Procesando...'
-                      : `Pagar $${event.price}`}
-                  </Button>
+                  {!clientSecret && (
+                    <>
+                      {attendees.length < 10 && (
+                        <Button
+                          type="button"
+                          variant="outlined"
+                          startIcon={<Add />}
+                          onClick={addAttendee}
+                          sx={styles.addButton}
+                        >
+                          Agregar asistente
+                        </Button>
+                      )}
+
+                      <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        size="large"
+                        disabled={createPaymentIntentMutation.isPending || totalAmount === 0}
+                        sx={styles.continueButton}
+                      >
+                        {createPaymentIntentMutation.isPending
+                          ? 'Preparando pago...'
+                          : `Continuar - $${totalAmount}`}
+                      </Button>
+                    </>
+                  )}
+
+                  {clientSecret && (
+                    <Button variant="outlined" onClick={resetForm} sx={styles.backButton}>
+                      ← Modificar asistentes
+                    </Button>
+                  )}
                 </Box>
-
-                <Typography variant="caption" sx={styles.disclaimer(theme)}>
-                  Al completar esta compra, aceptas nuestros términos y condiciones.
-                </Typography>
               </CardContent>
             </Card>
           </Grid>
+
+          {/* Payment Form - Show only when clientSecret exists */}
+          {clientSecret && (
+            <Grid size={{ xs: 12, md: 7 }}>
+              <Card sx={styles.card(theme)}>
+                <CardContent>
+                  <Box sx={styles.header}>
+                    <CreditCard sx={styles.icon(theme)} />
+                    <Typography variant="h5" sx={styles.cardTitle(theme)}>
+                      Información de Pago
+                    </Typography>
+                  </Box>
+
+                  {/* Stripe Elements with payment methods */}
+                  <Elements
+                    stripe={stripePromise}
+                    options={{
+                      clientSecret,
+                      appearance: {
+                        theme: 'stripe',
+                        variables: {
+                          fontFamily: 'system-ui, sans-serif',
+                          colorPrimary: '#0570de',
+                          colorBackground: '#ffffff',
+                          colorText: '#30313d',
+                          colorDanger: '#df1b41',
+                          fontSizeBase: '16px',
+                          spacingUnit: '2px',
+                          borderRadius: '4px',
+                        },
+                      },
+                      loader: 'auto',
+                    }}
+                  >
+                    <CheckoutForm
+                      event={event}
+                      attendees={attendees}
+                      clientSecret={clientSecret}
+                      totalAmount={totalAmount}
+                    />
+                  </Elements>
+                </CardContent>
+              </Card>
+            </Grid>
+          )}
         </Grid>
       </Container>
     </Box>
@@ -198,62 +411,64 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
 };
 
 const styles = {
-  paymentContainer: (theme: any) => ({
+  container: (theme: any) => ({
     minHeight: '100vh',
     backgroundColor: theme.palette.background.default,
     py: 4,
   }),
-  pageTitle: (theme: any) => ({
+  title: (theme: any) => ({
     textAlign: 'center',
     mb: 4,
     color: theme.palette.primary.main,
-    fontWeight: theme.custom.fontWeight.bold,
+    fontWeight: 'bold',
   }),
-  eventCard: (theme: any) => ({
-    borderRadius: theme.custom.borderRadius.large,
-    boxShadow: theme.palette.custom.shadow.medium,
-    backgroundColor: theme.palette.background.paper,
+  card: (theme: any) => ({
+    borderRadius: 2,
+    boxShadow: theme.shadows[3],
+  }),
+  cardDisabled: (theme: any) => ({
+    borderRadius: 2,
+    boxShadow: theme.shadows[1],
+    opacity: 0.7,
+    backgroundColor: theme.palette.grey[50],
   }),
   eventTitle: (theme: any) => ({
     color: theme.palette.primary.main,
-    fontWeight: theme.custom.fontWeight.bold,
+    fontWeight: 'bold',
     mb: 2,
   }),
-  eventDate: (theme: any) => ({
-    color: theme.palette.text.primary,
+  eventDate: {
     mb: 1,
-  }),
+  },
   eventAddress: (theme: any) => ({
     color: theme.palette.text.secondary,
     mb: 3,
   }),
-  priceContainer: (theme: any) => ({
+  priceBox: (theme: any) => ({
     textAlign: 'center',
     pt: 2,
     borderTop: `1px solid ${theme.palette.divider}`,
   }),
-  eventPrice: (theme: any) => ({
+  price: {
+    mb: 1,
+  },
+  total: (theme: any) => ({
     color: theme.palette.secondary.main,
-    fontWeight: theme.custom.fontWeight.bold,
+    fontWeight: 'bold',
   }),
-  paymentCard: (theme: any) => ({
-    borderRadius: theme.custom.borderRadius.large,
-    boxShadow: theme.palette.custom.shadow.medium,
-    backgroundColor: theme.palette.background.paper,
-  }),
-  paymentHeader: {
+  header: {
     display: 'flex',
     alignItems: 'center',
     mb: 3,
     gap: 2,
   },
-  paymentIcon: (theme: any) => ({
+  icon: (theme: any) => ({
     fontSize: 28,
     color: theme.palette.primary.main,
   }),
-  paymentTitle: (theme: any) => ({
+  cardTitle: (theme: any) => ({
     color: theme.palette.primary.main,
-    fontWeight: theme.custom.fontWeight.bold,
+    fontWeight: 'bold',
   }),
   errorAlert: {
     mb: 3,
@@ -263,42 +478,46 @@ const styles = {
     flexDirection: 'column',
     gap: 3,
   },
-  textField: (theme: any) => ({
-    '& .MuiOutlinedInput-root': {
-      borderRadius: theme.custom.borderRadius.medium,
-    },
+  helper: (theme: any) => ({
+    color: theme.palette.text.secondary,
   }),
+  attendeeRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 1,
+  },
   inputIcon: (theme: any) => ({
     color: theme.palette.text.secondary,
     mr: 1,
   }),
-  securityNote: (theme: any) => ({
-    display: 'flex',
-    alignItems: 'center',
-    gap: 1,
-    p: 2,
-    backgroundColor: theme.palette.success.light,
-    borderRadius: theme.custom.borderRadius.medium,
+  removeButton: (theme: any) => ({
+    color: theme.palette.error.main,
   }),
-  lockIcon: (theme: any) => ({
-    fontSize: 16,
-    color: theme.palette.success.main,
-  }),
-  securityText: (theme: any) => ({
-    color: theme.palette.success.dark,
-    fontSize: '0.875rem',
-  }),
-  payButton: (theme: any) => ({
+  addButton: {
+    alignSelf: 'flex-start',
+  },
+  continueButton: {
     py: 2,
-    borderRadius: theme.custom.borderRadius.medium,
-    fontWeight: theme.custom.fontWeight.bold,
     fontSize: '1.1rem',
-  }),
-  disclaimer: (theme: any) => ({
+    fontWeight: 'bold',
+  },
+  backButton: {
+    mb: 3,
+  },
+  summary: (theme: any) => ({
+    p: 2,
+    backgroundColor: theme.palette.grey[50],
+    borderRadius: 1,
     textAlign: 'center',
-    color: theme.palette.text.secondary,
-    mt: 2,
   }),
+  summaryText: {
+    fontSize: '1.1rem',
+  },
+  payButton: {
+    py: 2,
+    fontSize: '1.1rem',
+    fontWeight: 'bold',
+  },
 };
 
 export default PaymentForm;

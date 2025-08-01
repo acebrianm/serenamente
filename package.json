@@ -12,6 +12,7 @@
     "dev": "concurrently \"pnpm --filter frontend dev\" \"pnpm --filter backend dev\"",
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:backend": "pnpm --filter backend dev",
+    "kill-be-port": "pnpm --filter backend kill-port",
     "build": "pnpm --filter backend build && pnpm --filter frontend build",
     "build:frontend": "pnpm --filter frontend build",
     "build:backend": "pnpm --filter backend build",
