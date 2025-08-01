@@ -157,7 +157,7 @@ export const webhookHandler = async (req: any, res: Response): Promise<void> => 
       bodyIsBuffer: Buffer.isBuffer(req.body),
       bodyLength: req.body ? req.body.length : 0,
       contentType: req.get('content-type'),
-      signaturePreview: signature ? signature.substring(0, 50) + '...' : 'none',
+      signaturePreview: signature ? `${signature.substring(0, 50)}...` : 'none',
     });
 
     if (!signature) {
