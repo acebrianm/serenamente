@@ -1,3 +1,4 @@
+import { Ticket } from '@prisma/client';
 import Stripe from 'stripe';
 import { prisma } from '../utils/database';
 import { emailService } from './emailService';
@@ -208,7 +209,7 @@ export const getPaymentStatus = async (paymentIntentId: string, userId: string) 
     const attendees = JSON.parse(paymentIntent.metadata['attendees'] || '[]');
     const eventId = paymentIntent.metadata['eventId'];
 
-    let tickets = [];
+    let tickets: Ticket[] = [];
     if (paymentIntent.status === 'succeeded') {
       tickets = await prisma.ticket.findMany({
         where: {
