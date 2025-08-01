@@ -56,6 +56,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const theme = useTheme();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [isPaymentElementReady, setIsPaymentElementReady] = useState(false);
 
   // Debug Stripe loading
   React.useEffect(() => {
@@ -74,8 +76,42 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       return;
     }
 
-    setIsProcessing(true);
+    // Validate payment form completion
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      const errors = [];
+      if (submitError.message?.includes('card number') || submitError.message?.includes('número')) {
+        errors.push('Número de tarjeta es requerido');
+      }
+      if (submitError.message?.includes('expiry') || submitError.message?.includes('vencimiento')) {
+        errors.push('Fecha de vencimiento es requerida');
+      }
+      if (submitError.message?.includes('cvc') || submitError.message?.includes('código')) {
+        errors.push('Código de seguridad (CVC) es requerido');
+      }
+      if (
+        submitError.message?.includes('postal') ||
+        submitError.message?.includes('zip') ||
+        submitError.message?.includes('código postal')
+      ) {
+        errors.push('Código postal es requerido');
+      }
+      if (submitError.message?.includes('name') || submitError.message?.includes('nombre')) {
+        errors.push('Nombre del titular es requerido');
+      }
+
+      if (errors.length === 0) {
+        errors.push(submitError.message || 'Por favor completa todos los campos requeridos');
+      }
+
+      setValidationErrors(errors);
+      setError('');
+      return;
+    }
+
+    setValidationErrors([]);
     setError('');
+    setIsProcessing(true);
 
     try {
       const { error: confirmError } = await stripe.confirmPayment({
@@ -115,20 +151,44 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         </Alert>
       )}
 
+      {validationErrors.length > 0 && (
+        <Alert severity="warning" sx={styles.errorAlert}>
+          <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1 }}>
+            Por favor completa los siguientes campos:
+          </Typography>
+          <ul style={{ margin: 0, paddingLeft: '20px' }}>
+            {validationErrors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        </Alert>
+      )}
+
       {/* Stripe PaymentElement with payment method options */}
-      <PaymentElement
-        options={{
-          layout: {
-            type: 'tabs',
-            defaultCollapsed: false,
-            radios: false,
-            spacedAccordionItems: true,
-          },
-          fields: {
-            billingDetails: 'auto',
-          },
-        }}
-      />
+      {!isPaymentElementReady && (
+        <Box sx={styles.paymentElementLoading}>
+          <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary' }}>
+            Cargando métodos de pago...
+          </Typography>
+        </Box>
+      )}
+
+      <Box sx={isPaymentElementReady ? {} : { display: 'none' }}>
+        <PaymentElement
+          options={{
+            layout: {
+              type: 'tabs',
+              defaultCollapsed: false,
+              radios: false,
+              spacedAccordionItems: true,
+            },
+            fields: {
+              billingDetails: 'auto',
+            },
+          }}
+          onReady={() => setIsPaymentElementReady(true)}
+        />
+      </Box>
 
       <Box sx={styles.summary(theme)}>
         <Typography variant="body1" sx={styles.summaryText}>
@@ -142,10 +202,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         fullWidth
         variant="contained"
         size="large"
-        disabled={!stripe || isProcessing}
+        disabled={!stripe || isProcessing || !isPaymentElementReady}
         sx={styles.payButton}
       >
-        {isProcessing ? 'Procesando pago...' : `Pagar $${totalAmount}`}
+        {isProcessing
+          ? 'Procesando pago...'
+          : !isPaymentElementReady
+            ? 'Cargando...'
+            : `Pagar $${totalAmount}`}
       </Button>
     </Box>
   );
@@ -517,6 +581,17 @@ const styles = {
     py: 2,
     fontSize: '1.1rem',
     fontWeight: 'bold',
+  },
+  paymentElementLoading: {
+    p: 4,
+    textAlign: 'center',
+    minHeight: '200px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: '1px solid #e0e0e0',
+    borderRadius: 1,
+    backgroundColor: '#fafafa',
   },
 };
 
