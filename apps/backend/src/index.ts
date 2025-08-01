@@ -12,7 +12,6 @@ import rateLimit from 'express-rate-limit';
 import expressSession from 'express-session';
 import helmet from 'helmet';
 import passport from './config/passport';
-// Import webhook handler directly
 import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
 // Import routes
 import authRoutes from './routes/authRoutes';

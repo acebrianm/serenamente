@@ -1,5 +1,9 @@
 import { Ticket } from '@prisma/client';
 import Stripe from 'stripe';
+
+// Store processed webhook events to prevent duplicate processing
+const processedEvents = new Set<string>();
+
 import { prisma } from '../utils/database';
 import { emailService } from './emailService';
 
@@ -166,6 +170,22 @@ export const handleWebhook = async (body: Buffer | string, signature: string) =>
       eventId: event.id,
     });
 
+    // Check if we've already processed this event
+    if (processedEvents.has(event.id)) {
+      console.log(`⚠️ Webhook event ${event.id} already processed, skipping`);
+      return { received: true, skipped: true };
+    }
+
+    // Mark event as processed
+    processedEvents.add(event.id);
+
+    // Clean up old events (keep only last 1000 to prevent memory leak)
+    if (processedEvents.size > 1000) {
+      const eventsArray = Array.from(processedEvents);
+      processedEvents.clear();
+      eventsArray.slice(-500).forEach(id => processedEvents.add(id));
+    }
+
     switch (event.type) {
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
@@ -186,7 +206,7 @@ export const handleWebhook = async (body: Buffer | string, signature: string) =>
 
     return { received: true };
   } catch (error) {
-    console.error('Error processing webhook:', error);
+    console.error('❌ Error processing webhook:', error);
     throw error;
   }
 };
@@ -208,6 +228,21 @@ export const getPaymentStatus = async (paymentIntentId: string, userId: string) 
     // Check if we have tickets created for this payment
     const attendees = JSON.parse(paymentIntent.metadata['attendees'] || '[]');
     const eventId = paymentIntent.metadata['eventId'];
+
+    // Fetch the event details
+    const event = await prisma.event.findUnique({
+      where: { id: eventId },
+      select: {
+        id: true,
+        name: true,
+        date: true,
+        address: true,
+        price: true,
+        description: true,
+        promoVideo: true,
+        promoImages: true,
+      },
+    });
 
     let tickets: Ticket[] = [];
     if (paymentIntent.status === 'succeeded') {
@@ -265,10 +300,6 @@ export const getPaymentStatus = async (paymentIntentId: string, userId: string) 
         status = 'failed';
         message = 'Pago cancelado';
         break;
-      case 'payment_failed':
-        status = 'failed';
-        message = 'Pago fallido';
-        break;
       default:
         status = 'pending';
         message = 'Estado del pago desconocido';
@@ -283,10 +314,10 @@ export const getPaymentStatus = async (paymentIntentId: string, userId: string) 
         amount: paymentIntent.amount / 100, // Convert from cents
         currency: paymentIntent.currency.toUpperCase(),
       },
+      event,
       tickets: tickets.map(ticket => ({
         id: ticket.id,
         nameOfAttendee: ticket.nameOfAttendee,
-        event: ticket.event,
         createdAt: ticket.createdAt,
       })),
       expectedTickets: attendees.length,

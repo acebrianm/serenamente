@@ -30,9 +30,12 @@ const PaymentLoading: React.FC = () => {
       console.log(`🔍 Checking payment status (attempt ${attemptNumber}/${maxAttempts})`);
 
       try {
-        const response = await fetch(`/api/payments/status/${paymentIntentId}`, {
+        const response = await fetch(`/api/payments/status/${paymentIntentId}?t=${Date.now()}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            Pragma: 'no-cache',
+            Expires: '0',
           },
         });
 

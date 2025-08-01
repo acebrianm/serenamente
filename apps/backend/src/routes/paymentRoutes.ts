@@ -26,7 +26,6 @@ router.post(
 );
 router.get('/status/:paymentIntentId', authenticate, checkPaymentStatus);
 
-// Webhook route (no authentication needed) - MUST have raw body parser
 router.post('/webhook', webhookHandler);
 
 export default router;
