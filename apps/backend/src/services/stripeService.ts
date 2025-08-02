@@ -1,8 +1,12 @@
+import { randomBytes } from 'node:crypto';
 import { Ticket } from '@prisma/client';
 import Stripe from 'stripe';
 
 // Store processed webhook events to prevent duplicate processing
 const processedEvents = new Set<string>();
+
+// Store processed payment intents to prevent duplicates
+const processedPaymentIntents = new Map<string, string>();
 
 import { prisma } from '../utils/database';
 import { emailService } from './emailService';
@@ -15,10 +19,40 @@ export interface CreatePaymentIntentData {
   eventId: string;
   userId: string;
   attendees: string[]; // Array of attendee names
+  idempotencyKey?: string; // Optional idempotency key from frontend
 }
 
 export const createPaymentIntent = async (data: CreatePaymentIntentData) => {
   try {
+    // Generate a unique request key for duplicate detection
+    const requestKey = `${data.userId}-${data.eventId}-${JSON.stringify(data.attendees.sort())}`;
+
+    // Generate or use provided idempotency key
+    const idempotencyKey = data.idempotencyKey || randomBytes(16).toString('hex');
+
+    // Check if we already processed this exact request
+    if (processedPaymentIntents.has(requestKey)) {
+      const existingPaymentIntentId = processedPaymentIntents.get(requestKey)!;
+      console.log(
+        `⚠️ Duplicate payment intent request detected, returning existing: ${existingPaymentIntentId}`
+      );
+
+      // Retrieve existing payment intent
+      const existingPaymentIntent = await stripe.paymentIntents.retrieve(existingPaymentIntentId);
+      const event = await prisma.event.findUnique({ where: { id: data.eventId } });
+
+      return {
+        clientSecret: existingPaymentIntent.client_secret,
+        paymentIntentId: existingPaymentIntent.id,
+        amount: event!.price * data.attendees.length,
+        currency: 'MXN',
+        eventName: event!.name,
+        ticketCount: data.attendees.length,
+        pricePerTicket: event!.price,
+        ephemeralKeySecret: null, // Will be added later
+      };
+    }
+
     // Get event details
     const event = await prisma.event.findUnique({
       where: { id: data.eventId },
@@ -45,23 +79,72 @@ export const createPaymentIntent = async (data: CreatePaymentIntentData) => {
     const ticketCount = data.attendees.length;
     const totalAmount = Math.round(event.price * ticketCount * 100); // Convert to cents
 
-    // Create payment intent with automatic payment methods
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: totalAmount,
-      currency: 'mxn', // Mexican Peso
-      automatic_payment_methods: {
-        enabled: true, // Let Stripe automatically enable compatible payment methods
+    // Create Stripe customer if not exists (for ephemeral key)
+    let customer: Stripe.Customer;
+    try {
+      // Try to find existing customer by email
+      const existingCustomers = await stripe.customers.list({
+        email: user.email,
+        limit: 1,
+      });
+
+      if (existingCustomers.data.length > 0) {
+        customer = existingCustomers.data[0];
+      } else {
+        // Create new customer
+        customer = await stripe.customers.create({
+          email: user.email,
+          name: `${user.firstName} ${user.lastName}`,
+          metadata: {
+            userId: user.id,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error handling Stripe customer:', error);
+      throw new Error('Error configurando customer de Stripe');
+    }
+
+    // Create ephemeral key for secure frontend operations
+    const ephemeralKey = await stripe.ephemeralKeys.create(
+      { customer: customer.id },
+      { apiVersion: '2023-10-16' }
+    );
+
+    // Create payment intent with automatic payment methods and idempotency key
+    const paymentIntent = await stripe.paymentIntents.create(
+      {
+        amount: totalAmount,
+        currency: 'mxn', // Mexican Peso
+        customer: customer.id,
+        automatic_payment_methods: {
+          enabled: true, // Let Stripe automatically enable compatible payment methods
+        },
+        metadata: {
+          eventId: data.eventId,
+          userId: data.userId,
+          attendees: JSON.stringify(data.attendees), // Store as JSON string
+          ticketCount: ticketCount.toString(),
+          eventName: event.name,
+          userEmail: user.email,
+          idempotencyKey,
+        },
+        description: `${ticketCount} ticket(s) para ${event.name}`,
       },
-      metadata: {
-        eventId: data.eventId,
-        userId: data.userId,
-        attendees: JSON.stringify(data.attendees), // Store as JSON string
-        ticketCount: ticketCount.toString(),
-        eventName: event.name,
-        userEmail: user.email,
-      },
-      description: `${ticketCount} ticket(s) para ${event.name}`,
-    });
+      {
+        idempotencyKey, // Stripe-level idempotency
+      }
+    );
+
+    // Store this request to prevent duplicates
+    processedPaymentIntents.set(requestKey, paymentIntent.id);
+
+    // Clean up old entries to prevent memory leak
+    if (processedPaymentIntents.size > 1000) {
+      const entries = Array.from(processedPaymentIntents.entries());
+      processedPaymentIntents.clear();
+      entries.slice(-500).forEach(([key, value]) => processedPaymentIntents.set(key, value));
+    }
 
     return {
       clientSecret: paymentIntent.client_secret,
@@ -71,6 +154,8 @@ export const createPaymentIntent = async (data: CreatePaymentIntentData) => {
       eventName: event.name,
       ticketCount,
       pricePerTicket: event.price,
+      ephemeralKeySecret: ephemeralKey.secret,
+      customerId: customer.id,
     };
   } catch (error) {
     console.error('Error creating payment intent:', error);
@@ -86,15 +171,40 @@ export const confirmPayment = async (paymentIntentId: string) => {
       const attendees = JSON.parse(paymentIntent.metadata['attendees'] || '[]');
       const eventId = paymentIntent.metadata['eventId']!;
       const userId = paymentIntent.metadata['userId']!;
+      const idempotencyKey = paymentIntent.metadata['idempotencyKey'];
 
-      // Create multiple tickets in a transaction
-      const tickets = await prisma.$transaction(async tx => {
-        const ticketPromises = attendees.map((nameOfAttendee: string) =>
-          tx.ticket.create({
+      // Check if tickets already exist for this specific payment intent
+      const existingTickets = await prisma.ticket.findMany({
+        where: {
+          paymentIntentId: paymentIntentId,
+        },
+        include: {
+          event: true,
+          user: true,
+        },
+      });
+
+      // If we already have tickets for this payment intent, return them
+      if (existingTickets.length > 0) {
+        console.log(
+          `⚠️ Tickets already exist for payment ${paymentIntentId}, returning existing tickets`
+        );
+        return existingTickets;
+      }
+
+      // Create all tickets for this payment intent with idempotency protection
+      const newTickets = await prisma.$transaction(async tx => {
+        const ticketPromises = attendees.map((nameOfAttendee: string, index: number) => {
+          // Create a unique idempotency key for each ticket
+          const ticketIdempotencyKey = `${idempotencyKey}-ticket-${index}-${nameOfAttendee}`;
+
+          return tx.ticket.create({
             data: {
               nameOfAttendee,
               eventId,
               userId,
+              paymentIntentId: paymentIntentId, // Link to payment intent
+              idempotencyKey: ticketIdempotencyKey, // Store idempotency key
             },
             include: {
               event: {
@@ -124,14 +234,16 @@ export const confirmPayment = async (paymentIntentId: string) => {
                 },
               },
             },
-          })
-        );
+          });
+        });
 
         return Promise.all(ticketPromises);
       });
 
-      // Send ticket confirmation emails for each ticket (async, don't wait)
-      tickets.forEach(ticket => {
+      const allTickets = newTickets;
+
+      // Send ticket confirmation emails for all tickets (async, don't wait)
+      newTickets.forEach(ticket => {
         emailService
           .sendTicketConfirmationEmail(ticket.user as any, ticket.event as any, ticket as any)
           .catch(error => {
@@ -139,7 +251,7 @@ export const confirmPayment = async (paymentIntentId: string) => {
           });
       });
 
-      return tickets;
+      return allTickets;
     }
 
     throw new Error('Pago no completado');
@@ -247,14 +359,10 @@ export const getPaymentStatus = async (paymentIntentId: string, userId: string) 
 
     let tickets: Ticket[] = [];
     if (paymentIntent.status === 'succeeded') {
+      // Find tickets linked to this specific payment intent
       tickets = await prisma.ticket.findMany({
         where: {
-          eventId,
-          userId,
-          // Check for tickets created in the last 10 minutes
-          createdAt: {
-            gte: new Date(Date.now() - 10 * 60 * 1000),
-          },
+          paymentIntentId: paymentIntentId,
         },
         include: {
           event: {

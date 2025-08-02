@@ -215,6 +215,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   );
 };
 
+// Generate idempotency key for this payment session
+const generateIdempotencyKey = (): string => {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+};
+
 const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -224,6 +229,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
   const [attendees, setAttendees] = useState<string[]>(['']);
   const [clientSecret, setClientSecret] = useState('');
   const [error, setError] = useState('');
+  const [idempotencyKey] = useState(() => generateIdempotencyKey()); // Generate once per component instance
 
   const addAttendee = () => {
     if (attendees.length < 10) {
@@ -270,12 +276,26 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
       {
         eventId: event.id,
         attendees: validAttendees.map(name => name.trim()),
+        idempotencyKey, // Include idempotency key
       },
       {
         onSuccess: data => {
           console.log('Payment intent created:', data);
           setClientSecret(data.payment.clientSecret);
           setAttendees(validAttendees);
+
+          // Store payment data in sessionStorage for recovery
+          sessionStorage.setItem(
+            'paymentData',
+            JSON.stringify({
+              eventId: event.id,
+              attendees: validAttendees,
+              paymentIntentId: data.payment.paymentIntentId,
+              idempotencyKey,
+              clientSecret: data.payment.clientSecret,
+              timestamp: Date.now(),
+            })
+          );
         },
         onError: (err: any) => {
           console.error('Payment intent error:', err);
@@ -291,7 +311,37 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ event }) => {
   const resetForm = () => {
     setClientSecret('');
     setError('');
+    // Clear stored payment data
+    sessionStorage.removeItem('paymentData');
   };
+
+  // Recovery logic - check for existing payment data
+  React.useEffect(() => {
+    const storedPaymentData = sessionStorage.getItem('paymentData');
+    if (storedPaymentData) {
+      try {
+        const paymentData = JSON.parse(storedPaymentData);
+
+        // Check if data is for this event and not too old (30 minutes)
+        const isValidData =
+          paymentData.eventId === event.id &&
+          paymentData.timestamp &&
+          Date.now() - paymentData.timestamp < 30 * 60 * 1000;
+
+        if (isValidData && paymentData.clientSecret) {
+          console.log('🔄 Recovering payment session:', paymentData);
+          setClientSecret(paymentData.clientSecret);
+          setAttendees(paymentData.attendees || ['']);
+        } else {
+          // Clear old/invalid data
+          sessionStorage.removeItem('paymentData');
+        }
+      } catch (error) {
+        console.error('Error parsing stored payment data:', error);
+        sessionStorage.removeItem('paymentData');
+      }
+    }
+  }, [event.id]);
 
   const totalAmount = attendees.filter(name => name.trim().length > 0).length * event.price;
 

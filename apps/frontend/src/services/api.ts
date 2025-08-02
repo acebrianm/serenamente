@@ -77,6 +77,8 @@ export interface PaymentIntent {
   eventName: string;
   ticketCount: number;
   pricePerTicket: number;
+  ephemeralKeySecret?: string; // For secure operations
+  customerId?: string; // Stripe customer ID
 }
 
 export interface ApiPaymentResponse {
@@ -272,12 +274,24 @@ export interface PaymentStatus {
   createdTickets: number;
 }
 
+// Generate idempotency key for payment requests
+const generateIdempotencyKey = (): string => {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+};
+
 export const paymentService = {
   createPaymentIntent: async (data: {
     eventId: string;
     attendees: string[]; // Array of attendee names
+    idempotencyKey?: string;
   }): Promise<ApiPaymentResponse> => {
-    const response = await api.post('/payments/create-payment-intent', data);
+    // Generate idempotency key if not provided
+    const idempotencyKey = data.idempotencyKey || generateIdempotencyKey();
+
+    const response = await api.post('/payments/create-payment-intent', {
+      ...data,
+      idempotencyKey,
+    });
     return response.data;
   },
 

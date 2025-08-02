@@ -33,8 +33,12 @@ model Ticket {
   eventId        String
   user           User     @relation(fields: [userId], references: [id])
   userId         String
+  paymentIntentId String? // Stripe Payment Intent ID
+  idempotencyKey String? // Idempotency key for duplicate prevention
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
+
+  @@unique([paymentIntentId, idempotencyKey]) // Prevent duplicate tickets for same payment + idempotency key
 }
 
 model Event {
