@@ -154,6 +154,7 @@ export const handleWebhook = async (body: Buffer | string, signature: string) =>
     console.log('🔐 Webhook signature verification:', {
       bodyType: typeof body,
       bodyLength: body.length,
+      body,
       signatureExists: !!signature,
       webhookSecretExists: !!process.env['STRIPE_WEBHOOK_SECRET'],
       webhookSecretPrefix: process.env['STRIPE_WEBHOOK_SECRET']?.substring(0, 8),

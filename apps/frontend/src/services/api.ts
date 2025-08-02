@@ -253,6 +253,25 @@ export const ticketService = {
   },
 };
 
+export interface PaymentStatus {
+  status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'requires_action';
+  message: string;
+  paymentIntent: {
+    id: string;
+    status: string;
+    amount: number;
+    currency: string;
+  };
+  event?: Event;
+  tickets: {
+    id: string;
+    nameOfAttendee: string;
+    createdAt: string;
+  }[];
+  expectedTickets: number;
+  createdTickets: number;
+}
+
 export const paymentService = {
   createPaymentIntent: async (data: {
     eventId: string;
@@ -268,6 +287,11 @@ export const paymentService = {
     attendees: string[];
   }): Promise<{ success: boolean; tickets?: Ticket[] }> => {
     const response = await api.post('/payments/confirm-payment', data);
+    return response.data;
+  },
+
+  getPaymentStatus: async (paymentIntentId: string): Promise<PaymentStatus> => {
+    const response = await api.get(`/payments/status/${paymentIntentId}?t=${Date.now()}`);
     return response.data;
   },
 };

@@ -1,21 +1,12 @@
 import { CheckCircle, Download, Home } from '@mui/icons-material';
 import { Box, Button, Card, CardContent, Container, Typography, useTheme } from '@mui/material';
-import React, { useEffect, useMemo, useState } from 'react';
-import toast from 'react-hot-toast';
+import React, { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useConfirmPayment } from '../../hooks/useApi';
 
 const PaymentSuccess: React.FC = () => {
   const theme = useTheme();
   const [searchParams] = useSearchParams();
-  const confirmPaymentMutation = useConfirmPayment();
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
-  const [hasConfirmed, setHasConfirmed] = useState(false);
-
-  const eventId = searchParams.get('eventId');
   const attendeesParam = searchParams.get('attendees');
-  const paymentIntentId = searchParams.get('payment_intent');
 
   // Memoize attendees to prevent re-creation on every render
   const attendees = useMemo(() => {
@@ -26,93 +17,6 @@ const PaymentSuccess: React.FC = () => {
       return [];
     }
   }, [attendeesParam]);
-
-  useEffect(() => {
-    // Prevent multiple confirmations
-    if (hasConfirmed) return;
-
-    if (!eventId || !attendees.length || !paymentIntentId) {
-      setError('Información de pago incompleta');
-      return;
-    }
-
-    setHasConfirmed(true);
-
-    confirmPaymentMutation.mutate(
-      {
-        paymentIntentId,
-        eventId,
-        attendees,
-      },
-      {
-        onSuccess: result => {
-          if (result.success) {
-            setSuccess(true);
-            const ticketCount = attendees.length;
-            toast.success(
-              `¡Pago confirmado exitosamente! ${ticketCount} entrada${ticketCount > 1 ? 's han' : ' ha'} sido reservada${ticketCount > 1 ? 's' : ''}.`
-            );
-          } else {
-            setError('Error al confirmar el pago');
-          }
-        },
-        onError: (err: any) => {
-          setError(err.response?.data?.message || 'Error al procesar la confirmación');
-          setHasConfirmed(false); // Allow retry on error
-        },
-      }
-    );
-  }, [eventId, attendees, paymentIntentId, hasConfirmed]);
-
-  if (confirmPaymentMutation.isPending) {
-    return (
-      <Box sx={styles.successContainer(theme, 'processing')}>
-        <Container maxWidth="sm">
-          <Card sx={styles.successCard(theme)}>
-            <CardContent sx={styles.cardContent}>
-              <Typography variant="h4" sx={styles.processingTitle(theme)}>
-                Procesando tu pago...
-              </Typography>
-              <Typography variant="body1" sx={styles.processingText(theme)}>
-                Por favor espera mientras confirmamos tu compra.
-              </Typography>
-            </CardContent>
-          </Card>
-        </Container>
-      </Box>
-    );
-  }
-
-  if (!success && (error || confirmPaymentMutation.error)) {
-    return (
-      <Box sx={styles.successContainer(theme, 'error')}>
-        <Container maxWidth="sm">
-          <Card sx={styles.successCard(theme)}>
-            <CardContent sx={styles.cardContent}>
-              <Typography variant="h4" sx={styles.errorTitle(theme)}>
-                Error en el Pago
-              </Typography>
-              <Typography variant="body1" sx={styles.errorText(theme)}>
-                {error ||
-                  (confirmPaymentMutation.error as any)?.response?.data?.message ||
-                  'Error al procesar la confirmación'}
-              </Typography>
-              <Button
-                component={Link}
-                to="/"
-                variant="contained"
-                size="large"
-                startIcon={<Home />}
-                sx={styles.homeButton(theme)}
-              >
-                Volver al Inicio
-              </Button>
-            </CardContent>
-          </Card>
-        </Container>
-      </Box>
-    );
-  }
 
   return (
     <Box sx={styles.successContainer(theme, 'success')}>
@@ -218,23 +122,6 @@ const styles = {
     color: theme.palette.text.secondary,
     mb: 4,
     lineHeight: 1.6,
-  }),
-  processingTitle: (theme: any) => ({
-    color: theme.palette.primary.main,
-    fontWeight: theme.custom.fontWeight.bold,
-    mb: 2,
-  }),
-  processingText: (theme: any) => ({
-    color: theme.palette.text.secondary,
-  }),
-  errorTitle: (theme: any) => ({
-    color: theme.palette.error.main,
-    fontWeight: theme.custom.fontWeight.bold,
-    mb: 2,
-  }),
-  errorText: (theme: any) => ({
-    color: theme.palette.text.secondary,
-    mb: 4,
   }),
   actionButtons: {
     display: 'flex',

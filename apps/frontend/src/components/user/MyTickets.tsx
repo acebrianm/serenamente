@@ -171,7 +171,7 @@ const styles = {
   }),
   ticketCard: (theme: any) => ({
     height: '100%',
-    borderRadius: theme.custom.borderRadius.large,
+    borderRadius: theme.custom.borderRadius.medium,
     boxShadow: theme.palette.custom.shadow.medium,
     backgroundColor: theme.palette.background.paper,
     transition: 'transform 0.2s ease, box-shadow 0.2s ease',

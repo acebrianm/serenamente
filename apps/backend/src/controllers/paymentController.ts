@@ -172,12 +172,13 @@ export const webhookHandler = async (req: any, res: Response): Promise<void> => 
       return;
     }
 
+    res.status(200);
+
     console.log('🔍 Processing webhook with Buffer body, length:', req.body.length);
 
     await handleWebhook(req.body, signature);
 
     console.log('✅ Webhook processed successfully');
-    res.status(200).send('ok');
   } catch (error: any) {
     console.error('❌ Error en webhook:', error);
     console.error('Error details:', {

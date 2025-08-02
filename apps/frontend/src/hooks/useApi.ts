@@ -271,19 +271,6 @@ export const useCreatePaymentIntent = () => {
   });
 };
 
-export const useConfirmPayment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationKey: mutationKeys.confirmPayment,
-    mutationFn: paymentService.confirmPayment,
-    onSuccess: () => {
-      // Invalidate tickets to show new ticket
-      queryClient.invalidateQueries({ queryKey: queryKeys.ticketsUser });
-    },
-  });
-};
-
 // Contact Hook
 export const useSendMessage = () => {
   return useMutation({

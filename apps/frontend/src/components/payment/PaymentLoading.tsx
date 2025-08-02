@@ -2,6 +2,7 @@ import { CheckCircle, Error as ErrorIcon, HourglassEmpty } from '@mui/icons-mate
 import { Box, Card, CardContent, Container, Typography, useTheme } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { paymentService } from '../../services/api';
 
 const PaymentLoading: React.FC = () => {
   const theme = useTheme();
@@ -30,47 +31,40 @@ const PaymentLoading: React.FC = () => {
       console.log(`🔍 Checking payment status (attempt ${attemptNumber}/${maxAttempts})`);
 
       try {
-        const response = await fetch(`/api/payments/status/${paymentIntentId}?t=${Date.now()}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            Pragma: 'no-cache',
-            Expires: '0',
-          },
-        });
+        const data = await paymentService.getPaymentStatus(paymentIntentId);
+        console.log('Payment status response:', data);
 
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Payment status response:', data);
-
-          switch (data.status) {
-            case 'succeeded':
-              navigate(
-                `/payment-success?payment_intent=${paymentIntentId}&eventId=${eventId}&attendees=${attendees}`
-              );
-              return;
-            case 'failed':
-              navigate(
-                `/payment-error?message=${encodeURIComponent(data.message)}&payment_intent=${paymentIntentId}`
-              );
-              return;
-            case 'requires_action':
-              navigate(
-                `/payment-error?message=${encodeURIComponent('El pago requiere acción adicional')}&payment_intent=${paymentIntentId}`
-              );
-              return;
-            default:
-              break;
-          }
-        } else {
-          console.error(
-            'Error response from payment status:',
-            response.status,
-            response.statusText
-          );
+        switch (data.status) {
+          case 'succeeded':
+            navigate(
+              `/payment-success?payment_intent=${paymentIntentId}&eventId=${eventId}&attendees=${attendees}`
+            );
+            return;
+          case 'failed':
+            navigate(
+              `/payment-error?message=${encodeURIComponent(data.message)}&payment_intent=${paymentIntentId}`
+            );
+            return;
+          case 'requires_action':
+            navigate(
+              `/payment-error?message=${encodeURIComponent('El pago requiere acción adicional')}&payment_intent=${paymentIntentId}`
+            );
+            return;
+          default:
+            break;
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error checking payment status:', error);
+
+        // Handle axios error response
+        if (error.response) {
+          console.error('Error response status:', error.response.status);
+          console.error('Error response data:', error.response.data);
+        } else if (error.request) {
+          console.error('Network error - no response received:', error.request);
+        } else {
+          console.error('Error setting up request:', error.message);
+        }
       }
 
       attemptsRef.current += 1;
